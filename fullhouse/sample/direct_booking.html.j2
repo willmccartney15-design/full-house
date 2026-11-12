@@ -1,0 +1,6 @@
+<!doctype html>
+<html><body>
+{% for name, price in rooms %}
+<div class="room" data-room-name="{{ name }}"><h3 class="room-name">{{ name }}</h3><span class="room-price">${{ "%.0f"|format(price) }}</span></div>
+{% endfor %}
+</body></html>

@@ -1,0 +1,38 @@
+{
+  "_note": "Fictional properties for offline demos and tests. Not real businesses.",
+  "region": "Mooloolaba, Queensland",
+  "client": {
+    "name": "Coral Sands Motel",
+    "slug": "coral-sands-motel",
+    "property_type": "motel",
+    "locality": "Mooloolaba",
+    "region": "Queensland",
+    "room_count": 18,
+    "website_url": "https://coralsands.example/",
+    "direct_url": "https://book.coralsands.example/?checkin={checkin}&checkout={checkout}",
+    "photos": 14,
+    "description": "Clean rooms near the beach.",
+    "amenities": ["Free WiFi", "Parking", "Air conditioning"],
+    "free_cancellation": false,
+    "genius": false,
+    "review_score": 8.1,
+    "review_count": 412,
+    "reviews_shown": 10,
+    "reviews_responded": 2,
+    "rooms": {"Queen Room": 149, "Twin Room": 155, "Family Room": 205},
+    "direct_rates": {"Queen Room": 152, "Twin Room": 158, "Family Room": 210}
+  },
+  "competitors": [
+    {"name": "Harbour View Motor Inn", "slug": "harbour-view-motor-inn", "rooms": {"Queen Room": 165, "Twin Room": 168, "Family Room": 229}},
+    {"name": "Seabreeze Motel", "slug": "seabreeze-motel", "rooms": {"Double Room": 139, "Twin Room": 145}},
+    {"name": "The Esplanade Lodge", "slug": "the-esplanade-lodge", "rooms": {"Deluxe King Room": 189, "Family Suite": 259}},
+    {"name": "Point Cartwright Motel", "slug": "point-cartwright-motel", "rooms": {"Standard Queen": 155, "Family Room": 219}},
+    {"name": "Brisbane Road Motor Lodge", "slug": "brisbane-road-motor-lodge", "rooms": {"Queen Room": 129, "Twin Room": 135}},
+    {"name": "Alex Surf Motel", "slug": "alex-surf-motel", "rooms": {"Queen Room": 159, "Family Room": 215}},
+    {"name": "Parkyn Parade Inn", "slug": "parkyn-parade-inn", "rooms": {"Superior Queen": 172, "Twin Room": 175}},
+    {"name": "Buderim Gateway Motel", "slug": "buderim-gateway-motel", "rooms": {"Queen Room": 119, "Family Room": 179}},
+    {"name": "Kawana Waters Motor Inn", "slug": "kawana-waters-motor-inn", "rooms": {"King Room": 145, "Twin Room": 149}},
+    {"name": "Maroochy River Motel", "slug": "maroochy-river-motel", "rooms": {"Queen Room": 135, "Family Room": 195}},
+    {"name": "Sunshine Coast Backpackers", "slug": "sunshine-coast-backpackers", "rooms": {"Bed in 6-Bed Mixed Dorm": 42, "Private Double Room": 99}}
+  ]
+}
