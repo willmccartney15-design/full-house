@@ -8,6 +8,8 @@ tests/fixtures and update the selectors against it.
 
 from __future__ import annotations
 
+import re
+from collections import Counter
 from datetime import date, timedelta
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
@@ -125,3 +127,23 @@ def parse_search(html: str, base_url: str = "https://www.booking.com") -> list[S
         price = parse_price(text(first(card, '[data-testid="price-and-discounted-price"]')))
         results.append(SearchResult(name=name, url=href, price=price))
     return results
+
+
+def canonical_url(html: str) -> str | None:
+    """The property URL a saved page belongs to (canonical link or og:url), without query string."""
+    doc = soup(html)
+    for node, attr in ((doc.select_one('link[rel="canonical"]'), "href"),
+                       (doc.select_one('meta[property="og:url"]'), "content")):
+        href = (node.get(attr) or "").split("?")[0] if node else ""
+        if href and is_booking_url(href) and "/hotel/" in href:
+            return href
+    return None
+
+
+_CHECKIN_RE = re.compile(r"checkin[\"'=:\s]+\"?(\d{4}-\d{2}-\d{2})")
+
+
+def detect_checkin(html: str) -> date | None:
+    """Most common check-in date mentioned in a saved page (links and embedded JSON carry it)."""
+    found = Counter(_CHECKIN_RE.findall(html))
+    return date.fromisoformat(found.most_common(1)[0][0]) if found else None

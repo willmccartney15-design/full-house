@@ -178,6 +178,23 @@ def audit_listing(ctx: AgentContext, client: Client, listing: ListingData) -> Au
     return result
 
 
+def audit_and_store(ctx: AgentContext, client: Client, listing: ListingData) -> dict:
+    """Score one parsed listing and save it as today's ListingAudit for that OTA (replacing any earlier one)."""
+    audit = audit_listing(ctx, client, listing)
+    for old in ctx.session.exec(
+        select(ListingAudit).where(
+            ListingAudit.client_id == client.id, ListingAudit.date == ctx.today, ListingAudit.ota == listing.ota
+        )
+    ):
+        ctx.session.delete(old)
+    findings = {**audit.model_dump(), "listing": listing.to_dict()}
+    ctx.session.add(
+        ListingAudit(client_id=client.id, date=ctx.today, ota=listing.ota, score=audit.score, findings=findings)
+    )
+    ctx.session.commit()
+    return {"score": audit.score, **findings}
+
+
 def run(ctx: AgentContext, client: Client) -> AgentResult:
     result = AgentResult(agent=NAME, client_id=client.id, summary="")
     audits = {}
@@ -193,23 +210,7 @@ def run(ctx: AgentContext, client: Client) -> AgentResult:
             result.errors.append(f"{ota}: HTTP {page.status}")
             continue
         listing = parse_listing(ota, page.html, url)
-        audit = audit_listing(ctx, client, listing)
-        for old in ctx.session.exec(
-            select(ListingAudit).where(
-                ListingAudit.client_id == client.id, ListingAudit.date == ctx.today, ListingAudit.ota == ota
-            )
-        ):
-            ctx.session.delete(old)
-        ctx.session.add(
-            ListingAudit(
-                client_id=client.id,
-                date=ctx.today,
-                ota=ota,
-                score=audit.score,
-                findings={**audit.model_dump(), "listing": listing.to_dict()},
-            )
-        )
-        audits[ota] = {"score": audit.score, **audit.model_dump(), "listing": listing.to_dict()}
+        audits[ota] = audit_and_store(ctx, client, listing)
     ctx.session.commit()
     result.data = {"audits": audits}
     result.summary = ", ".join(f"{ota} {a['score']}/100 ({len(a['fixes'])} fixes)" for ota, a in audits.items()) or (

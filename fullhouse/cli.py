@@ -59,25 +59,52 @@ def _print_result(res) -> None:
 
 @app.command()
 def audit(
-    property_url: str = typer.Argument(..., help="Booking.com property URL"),
+    property_url: Optional[str] = typer.Argument(None, help="Booking.com property URL (live mode)"),
+    html: Optional[Path] = typer.Option(None, "--html", help="Property page saved from your browser (offline mode)"),
+    search_html: Optional[Path] = typer.Option(None, "--search-html",
+                                               help="Saved Booking.com search results for the area: competitors"),
+    competitor_html: Optional[list[Path]] = typer.Option(None, "--competitor-html",
+                                                         help="Saved competitor property page; repeat for each"),
+    checkin: Optional[str] = typer.Option(None, help="YYYY-MM-DD the pages were saved for (read from the page if omitted)"),
+    url: Optional[str] = typer.Option(None, "--url", help="Property URL, if the saved page does not include it"),
     website: Optional[str] = typer.Option(None, help="Property website, for the direct-booking checks"),
+    no_claude: bool = typer.Option(False, "--no-claude", help="Score with the built-in rubric only; no Claude calls"),
     dry_run: bool = DRY,
 ) -> None:
-    """Free Revenue Audit: 2-page PDF from one Booking.com URL."""
+    """Free Revenue Audit: a 2-page PDF, from a live URL or from pages saved in your browser (--html)."""
+    _audit(property_url, html=html, search_html=search_html, competitor_html=competitor_html or [],
+           checkin=checkin, url=url, website=website, no_claude=no_claude, dry_run=dry_run)
+
+
+def _audit(property_url, *, html=None, search_html=None, competitor_html=(), checkin=None, url=None, website=None,
+           no_claude=False, dry_run=False) -> None:
     from fullhouse import audit as audit_mod
     from fullhouse.sample import SAMPLE_BOOKING_URL
 
-    if dry_run and not property_url.startswith(SAMPLE_BOOKING_URL):
+    if html is None and property_url is None:
+        typer.secho("Give a Booking.com URL, or --html with a property page saved from your browser.", fg="red")
+        raise typer.Exit(2)
+    if html is None and dry_run and not property_url.startswith(SAMPLE_BOOKING_URL):
         typer.secho(f"--dry-run uses the offline sample market; using {SAMPLE_BOOKING_URL}", fg="yellow")
         property_url, website = SAMPLE_BOOKING_URL, website or "https://coralsands.example/"
     with context(dry_run=dry_run) as ctx:
+        if no_claude:
+            ctx.claude.dry_run = True
         try:
-            out = audit_mod.run(ctx, property_url, website=website)
-        except audit_mod.BlockedError as exc:
+            if html is not None:
+                out = audit_mod.run_saved(
+                    ctx, html, url=url or property_url, search_html=search_html, competitor_html=list(competitor_html),
+                    checkin=date.fromisoformat(checkin) if checkin else None, website=website,
+                )
+            else:
+                out = audit_mod.run(ctx, property_url, website=website)
+        except (audit_mod.BlockedError, audit_mod.SavedPageError) as exc:
             typer.secho(str(exc), fg="red")
             raise typer.Exit(1)
     typer.secho(out.headline, bold=True)
-    typer.echo(f"Competitors: {', '.join(out.competitors)}")
+    typer.echo(f"Competitors ({len(out.competitors)}): {', '.join(out.competitors) or 'none'}")
+    for note in out.notes:
+        typer.secho(f"Note: {note}", fg="yellow")
     typer.secho(f"PDF ({out.pages} pages): {out.pdf}", fg="green")
 
 
@@ -131,8 +158,8 @@ def schedule(
 @app.command()
 def demo() -> None:
     """5-minute offline demo: free audit, then the full weekly run, on the sample motel."""
-    audit(property_url="https://www.booking.com/hotel/au/coral-sands-motel.en-gb.html",
-          website="https://coralsands.example/", dry_run=True)
+    _audit("https://www.booking.com/hotel/au/coral-sands-motel.en-gb.html",
+           website="https://coralsands.example/", dry_run=True)
     typer.echo("")
     weekly(dry_run=True, client=None)
 

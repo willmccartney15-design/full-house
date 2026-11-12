@@ -59,7 +59,9 @@ class SampleFetcher:
                 {"name": c["name"], "slug": c["slug"], "price": min(c["rooms"].values()) * _factor(c["slug"], lead)}
                 for c in [self.market["client"], *self.market["competitors"]]
             ]
-            html = self.env.get_template("booking_search.html.j2").render(region=query.get("ss", ""), props=props)
+            html = self.env.get_template("booking_search.html.j2").render(
+                region=query.get("ss", ""), props=props, **self._dates(lead)
+            )
             return self._page(url, html)
         if parts.netloc == "coralsands.example":
             return self._page(url, (SAMPLE_DIR / "website.html").read_text(), elapsed=1850.0)
@@ -102,8 +104,14 @@ class SampleFetcher:
             "aggregateRating": {"ratingValue": p["review_score"], "bestRating": 10, "reviewCount": p["review_count"]},
         }
         return self.env.get_template("booking_listing.html.j2").render(
-            p=p, rooms=rooms, shown_photos=shown, more_photos=p["photos"] - shown, ld=ld
+            p=p, rooms=rooms, shown_photos=shown, more_photos=p["photos"] - shown, ld=ld, **self._dates(lead)
         )
+
+    def _dates(self, lead: int) -> dict:
+        from datetime import timedelta
+
+        checkin = self.today + timedelta(days=lead)
+        return {"checkin": checkin.isoformat(), "checkout": (checkin + timedelta(days=1)).isoformat()}
 
     @staticmethod
     def _page(url: str, html: str, elapsed: float = 600.0) -> Page:

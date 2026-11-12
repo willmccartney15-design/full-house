@@ -30,10 +30,32 @@ uv run playwright install chromium     # or set FULLHOUSE_CHROMIUM_PATH
 cp .env.example .env                    # add ANTHROPIC_API_KEY
 ```
 
+## Free audit from saved pages (recommended)
+
+Booking.com usually turns away automated clients, so the reliable way to run a free audit is from
+pages you save in your own browser. Nothing is fetched from Booking.com.
+
+1. Open the property on Booking.com with dates selected (say two weeks out, one night, two adults) and
+   wait for the room table to load. Save it: Chrome **File → Save Page As → Webpage, Complete**.
+2. Optional, for competitors: search the town for the same dates, scroll so the list loads, and save
+   that page too. The first 10 other properties become the competitor set, compared on their cheapest room.
+3. Optional, for room-level comparison: save a few competitors' property pages for the same dates.
+
+```bash
+uv run fullhouse audit --html listing.html --search-html search.html \
+    --competitor-html rival1.html --competitor-html rival2.html \
+    --website https://their-site.com.au
+```
+
+The property URL and dates are read from the saved page (`--url` and `--checkin` override them). Pages
+saved for different dates are flagged in the PDF. Add `--no-claude` to score with the built-in rubric
+only. Only `--website` is fetched live.
+
 ## Commands
 
 | Command | What it does |
 | --- | --- |
+| `fullhouse audit --html saved.html [--search-html ...] [--competitor-html ...]` | Free audit from pages saved in your browser (see above). |
 | `fullhouse audit <booking_url> [--website URL]` | Free audit: parses the listing, auto-picks 10 competitors from the same Booking.com search, runs rate_scraper + listing_auditor + funnel_checker, renders a 2-page PDF. Stores the property as a prospect. |
 | `fullhouse run <agent> --client <id>` | Runs one agent for one client. |
 | `fullhouse weekly` | Runs all six agents for every signed client, report last. |

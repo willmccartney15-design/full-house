@@ -2,7 +2,7 @@
 <html><head><title>Hotels in {{ region }}</title></head><body>
 {% for p in props %}
 <div data-testid="property-card">
-  <a data-testid="title-link" href="https://www.booking.com/hotel/au/{{ p.slug }}.en-gb.html?aid=1"><div data-testid="title">{{ p.name }}</div></a>
+  <a data-testid="title-link" href="https://www.booking.com/hotel/au/{{ p.slug }}.en-gb.html?aid=1&amp;checkin={{ checkin }}&amp;checkout={{ checkout }}"><div data-testid="title">{{ p.name }}</div></a>
   <span data-testid="price-and-discounted-price">AUD {{ "%.0f"|format(p.price) }}</span>
 </div>
 {% endfor %}

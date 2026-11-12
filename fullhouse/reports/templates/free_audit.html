@@ -10,19 +10,19 @@
 
 <div class="kpis">
   <div class="kpi"><div class="l">Listing score</div><div class="v">{{ audit.score }}/100</div><div class="d">{{ audit.fixes|length }} fixes found</div></div>
-  <div class="kpi"><div class="l">Price vs market (7 days out)</div><div class="v">{{ pos7.diff_pct|pct if pos7 else '–' }}</div><div class="d">{{ pos7.room_type|title_room if pos7 else '' }} vs median of {{ pos7.competitors_priced if pos7 else 0 }} competitors</div></div>
+  <div class="kpi"><div class="l">Price vs market ({{ pos_label }})</div><div class="v">{{ pos.diff_pct|pct if pos else '–' }}</div><div class="d">{% if pos %}{{ pos.room_type|title_room }} vs median of {{ pos.competitors_priced }} competitors{% else %}no comparable prices{% endif %}</div></div>
   <div class="kpi"><div class="l">Review responses</div><div class="v">{{ rr }}</div><div class="d">of visible reviews answered</div></div>
   <div class="kpi"><div class="l">Direct-booking issues</div><div class="v">{{ funnel_issues|length }}</div><div class="d">{{ funnel_high }} high priority</div></div>
 </div>
 
 <h2>Your price position</h2>
 <table>
-  <tr><th>Room</th>{% for lead in leads %}<th class="n">{{ lead }} day{{ 's' if lead > 1 }} out<br><span class="small">you · median</span></th>{% endfor %}</tr>
+  <tr><th>Room</th>{% for lead in leads %}<th class="n">{{ 'Tonight' if lead == 0 else (lead|string + ' day' + ('s' if lead > 1 else '') + ' out') }}<br><span class="small">you · median</span></th>{% endfor %}</tr>
   {% for room, cells in pivot.items() %}
   <tr><td>{{ room|title_room }}</td>
   {% for lead in leads %}{% set r = cells.get(lead) %}
   <td class="n">{% if r %}{{ r.client_price|money }} · {{ r.market_median|money }}<br>
-  <span class="{{ 'down' if r.diff_pct is not none and r.diff_pct < -10 else ('up' if r.diff_pct is not none and r.diff_pct > 10 else 'small') }}">{{ r.diff_pct|pct }}</span>{% else %}–{% endif %}</td>
+  <span class="{{ 'down' if r.diff_pct is not none and r.diff_pct < -10 else ('up' if r.diff_pct is not none and r.diff_pct > 10 else 'small') }}">{{ r.diff_pct|pct }}</span> <span class="small">· {{ r.competitors_priced }} compared</span>{% else %}–{% endif %}</td>
   {% endfor %}</tr>
   {% endfor %}
 </table>
@@ -64,5 +64,6 @@ reprice against these {{ competitor_names|length }} competitors weekly, answer e
 one-page report each Monday with three actions. <strong>No-ROI-no-fee:</strong> if revenue at day 60 and day 90 is not above
 the same period last year (adjusted for rooms and closures), you don't pay for that period.
 </div>
+{% for n in notes %}<p class="small">Note: {{ n }}</p>{% endfor %}
 <p class="small">This audit uses only public listing pages. It is a snapshot; prices change daily.</p>
 </body></html>
