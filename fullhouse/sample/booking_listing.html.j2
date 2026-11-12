@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><title>{{ p.name }}, {{ p.locality }} – Updated prices</title>
+<script type="application/ld+json">{{ ld | tojson }}</script></head>
+<body>
+<h2 class="pp-header__title" data-testid="property-name">{{ p.name }}</h2>
+<span data-testid="address">1 Example Esplanade, {{ p.locality }}, {{ p.region }}</span>
+<div class="gallery">
+{% for i in range(shown_photos) %}<img data-testid="gallery-image" src="/img/{{ i }}.jpg">{% endfor %}
+{% if more_photos %}<span>+{{ more_photos }} photos</span>{% endif %}
+</div>
+<div data-testid="property-description"><p>{{ p.description }}</p></div>
+<div data-testid="property-most-popular-facilities-wrapper"><ul>
+{% for a in p.amenities %}<li>{{ a }}</li>{% endfor %}
+</ul></div>
+<div data-testid="review-score-component"><div>{{ p.review_score }} Very good</div><div>{{ p.review_count }} reviews</div></div>
+{% if p.genius %}<div>Genius discount available</div>{% endif %}
+<table id="hprt-table"><tbody>
+{% for name, price in rooms %}
+<tr data-testid="room-row"><td><span data-testid="room-name" class="hprt-roomtype-icon-link">{{ name }}</span></td>
+<td><span data-testid="price-and-discounted-price">AUD {{ "%.0f"|format(price) }}</span></td>
+<td>{% if p.free_cancellation %}Free cancellation{% else %}Non-refundable{% endif %}</td></tr>
+{% endfor %}
+</tbody></table>
+<div data-testid="property-section--policies">Check-in from 14:00. Check-out until 10:00. {% if p.free_cancellation %}Free cancellation up to 48 hours before arrival.{% else %}Cancellation and prepayment policies vary by room type.{% endif %}</div>
+<div class="reviews">
+{% for i in range(p.reviews_shown) %}
+<div data-testid="review-card"><p>Great location, friendly staff. Room {{ i }} was tidy.</p>
+{% if i < p.reviews_responded %}<div data-testid="review-response">Thanks for staying with us!</div>{% endif %}</div>
+{% endfor %}
+</div>
+</body></html>
