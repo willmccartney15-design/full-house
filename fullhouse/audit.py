@@ -24,6 +24,10 @@ from fullhouse.reports.render import render_pdf
 N_COMPETITORS = 10
 
 
+class BlockedError(RuntimeError):
+    """The OTA served an empty or challenge page instead of real content."""
+
+
 @dataclass
 class AuditOutput:
     client_id: int
@@ -51,6 +55,11 @@ def run(ctx: AgentContext, url: str, website: str | None = None) -> AuditOutput:
     if page.status >= 400:
         raise RuntimeError(f"Could not load {url} (HTTP {page.status}).")
     listing = booking.parse_listing(page.html, url)
+    if not listing.name and not listing.rooms:
+        raise BlockedError(
+            f"Booking.com served a page with no property details for {url} (HTTP {page.status}); it is probably "
+            "turning away automated clients."
+        )
     name = listing.name or url.rsplit("/", 1)[-1].split(".")[0].replace("-", " ").title()
     region = ", ".join(p for p in (listing.locality, listing.region) if p)
 
@@ -114,9 +123,16 @@ def pick_competitors(ctx: AgentContext, client: Client, area: str) -> list[Compe
     if len(existing) >= N_COMPETITORS:
         return existing[:N_COMPETITORS]
     page = ctx.fetcher.get(booking.search_url(area, ctx.today + timedelta(days=7)), render=True)
+    results = booking.parse_search(page.html)
+    if not results:
+        raise BlockedError(
+            f"Booking.com returned no search results for '{area}' (HTTP {page.status}). It usually does this when it "
+            "turns away automated clients. Add competitors by hand with `fullhouse client add-competitor`, or use a "
+            "licensed rate-data source."
+        )
     own = _canonical(client.ota_urls["booking"])
     have = {_canonical(c.ota_urls.get("booking", "")) for c in existing}
-    for r in booking.parse_search(page.html):
+    for r in results:
         if len(existing) >= N_COMPETITORS:
             break
         if r.url in (own, *have) or r.name == client.name:

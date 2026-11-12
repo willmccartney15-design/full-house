@@ -71,7 +71,11 @@ def audit(
         typer.secho(f"--dry-run uses the offline sample market; using {SAMPLE_BOOKING_URL}", fg="yellow")
         property_url, website = SAMPLE_BOOKING_URL, website or "https://coralsands.example/"
     with context(dry_run=dry_run) as ctx:
-        out = audit_mod.run(ctx, property_url, website=website)
+        try:
+            out = audit_mod.run(ctx, property_url, website=website)
+        except audit_mod.BlockedError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
     typer.secho(out.headline, bold=True)
     typer.echo(f"Competitors: {', '.join(out.competitors)}")
     typer.secho(f"PDF ({out.pages} pages): {out.pdf}", fg="green")
