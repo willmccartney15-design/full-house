@@ -132,6 +132,8 @@ def rubric(listing: ListingData) -> AuditResult:
     rr = listing.review_response_rate
     if rr is None:
         scores["review_responses"] = (50, "Review responses could not be verified on the page.")
+        add_fix("review_responses", "Check that every recent review has an owner reply, and answer negatives within "
+                "48 hours.", "low", "Replies are visible to every guest reading reviews and lift conversion.", 0.5)
     else:
         scores["review_responses"] = (round(min(rr / 0.8, 1) * 100), f"{round(rr * 100)}% of visible reviews have "
                                       "a property response.")

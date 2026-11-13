@@ -26,7 +26,7 @@
   {% endfor %}</tr>
   {% endfor %}
 </table>
-<p class="small">Competitors: {{ competitor_names|join(', ') }}. Lowest available price per room category, one night, two adults; difference = you vs median; captured {{ today.strftime('%d %b %Y') }}.</p>
+<p class="small">Competitors: {{ competitor_names|join(', ') }}. Lowest price per night per room category for two adults (dorms: per bed); difference = you vs median; captured {{ today.strftime('%d %b %Y') }}.</p>
 
 <h2>Listing scorecard ({{ ota_label }})</h2>
 <table>
@@ -41,12 +41,14 @@
 <div class="break"></div>
 <div class="brand">Full House · Free Revenue Audit</div>
 <h2>Fix list, ranked by impact</h2>
+{% if not audit.fixes %}<p>No significant listing gaps: this listing is in good shape. The gains are in pricing and direct bookings.</p>{% else %}
 <table>
   <tr><th class="n" style="width:5%">#</th><th>Fix</th><th style="width:11%">Effort</th><th style="width:34%">Why it matters</th></tr>
   {% for f in audit.fixes[:8] %}
   <tr><td class="n">{{ f.rank }}</td><td>{{ f.fix }}</td><td>{{ f.effort|title }}</td><td>{{ f.expected_impact }}</td></tr>
   {% endfor %}
 </table>
+{% endif %}
 
 <h2>Direct-booking funnel</h2>
 {% if funnel_issues %}
@@ -59,7 +61,7 @@
 {% else %}<p>No issues found.</p>{% endif %}
 
 <div class="cta">
-<strong>What Full House would do in your first 30 days:</strong> fix the top {{ [audit.fixes|length, 3]|min }} listing issues,
+<strong>What Full House would do in your first 30 days:</strong> {% if audit.fixes %}work through the listing fixes above, {% endif %}
 reprice against these {{ competitor_names|length }} competitors weekly, answer every review within 48 hours, and send you a
 one-page report each Monday with three actions. <strong>No-ROI-no-fee:</strong> if revenue at day 60 and day 90 is not above
 the same period last year (adjusted for rooms and closures), you don't pay for that period.

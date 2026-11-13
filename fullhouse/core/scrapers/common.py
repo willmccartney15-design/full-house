@@ -35,6 +35,7 @@ class ListingData:
     review_scale: float = 10.0
     review_count: int | None = None
     review_response_rate: float | None = None  # 0..1 over the reviews visible on the page
+    nights: int = 1  # length of stay the page was priced for; room prices are already per night
 
     @property
     def room_types(self) -> list[str]:

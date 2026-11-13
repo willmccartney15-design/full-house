@@ -142,6 +142,7 @@ def run_saved(
 
     # Competitors: individual pages first (room-level prices), then search results (lowest price only).
     priced: list[tuple[str, str, ListingData | None, float | None]] = []  # name, url, listing, lowest
+    own_card: float | None = None
     for path in competitor_html or []:
         chtml = _read(path)
         curl = booking.canonical_url(chtml) or f"file://{Path(path).resolve()}"
@@ -159,7 +160,10 @@ def run_saved(
             notes.append(f"No properties found in {Path(search_html).name}; save the results list once it has loaded.")
         names = {n for n, *_ in priced}
         for r in results:
-            if r.name not in names and _canonical(r.url) != url and r.name != client.name:
+            if _canonical(r.url) == url or r.name == client.name:
+                own_card = r.price  # the property's own card: same basis as competitors' cards
+                continue
+            if r.name not in names:
                 priced.append((r.name, r.url, None, r.price))
                 names.add(r.name)
     priced = priced[:N_COMPETITORS]
@@ -170,7 +174,7 @@ def run_saved(
     competitors = _add_competitors(ctx, client, existing, [(n, u) for n, u, *_ in priced])
     by_name = {c.name: c for c in competitors}
 
-    position = _store_saved_rates(ctx, client, listing, priced, by_name, lead)
+    position = _store_saved_rates(ctx, client, listing, priced, by_name, lead, own_card)
     audit = listing_auditor.audit_and_store(ctx, client, listing)
 
     ctx.clear_findings(client, funnel_checker.NAME)
@@ -186,7 +190,7 @@ def run_saved(
     return _report(ctx, client, listing, audit, position, issues, [n for n, *_ in priced], lead=lead, notes=notes)
 
 
-def _store_saved_rates(ctx, client, listing, priced, by_name, lead) -> list[dict]:
+def _store_saved_rates(ctx, client, listing, priced, by_name, lead, own_card=None) -> list[dict]:
     for old in ctx.session.exec(
         select(RateSnapshot).where(RateSnapshot.client_id == client.id, RateSnapshot.date == ctx.today)
     ):
@@ -203,7 +207,7 @@ def _store_saved_rates(ctx, client, listing, priced, by_name, lead) -> list[dict
                 add(competitor_id, normalise_room(room.name), room.name, room.price)
 
     add_listing(None, listing)
-    if (low := _lowest(listing)) is not None:
+    if (low := own_card if own_card is not None else _lowest(listing)) is not None:
         add(None, LOWEST, "Cheapest room", low)
     for name, _, data, low in priced:
         cid = by_name[name].id
@@ -219,7 +223,9 @@ def _store_saved_rates(ctx, client, listing, priced, by_name, lead) -> list[dict
 
 
 def _lowest(data: ListingData) -> float | None:
-    prices = [r.price for r in data.rooms if r.price]
+    """Cheapest private room per night. Dorm beds are priced per guest, so they are compared only with dorms."""
+    prices = [r.price for r in data.rooms if r.price and normalise_room(r.name) != "dorm"]
+    prices = prices or [r.price for r in data.rooms if r.price]
     return min(prices) if prices else None
 
 
@@ -296,6 +302,8 @@ def _report(ctx, client, listing, audit, position, issues, competitor_names, *, 
     headline = _headline(client, audit, pos, lead)
     issues = sorted(issues, key=lambda i: {"high": 0, "medium": 1, "low": 2}[i["severity"]])
     rr = listing.review_response_rate
+    # Show only rows with something to compare against (room rows need saved competitor pages).
+    shown = [r for r in position if r["competitors_priced"]] or position
     out = ctx.settings.output_dir / f"client-{client.id}" / f"free-audit-{ctx.today.isoformat()}.pdf"
     pdf = render_pdf(
         "free_audit.html",
@@ -306,8 +314,8 @@ def _report(ctx, client, listing, audit, position, issues, competitor_names, *, 
             "headline": headline,
             "audit": listing_auditor.AuditResult.model_validate({"criteria": audit["criteria"], "fixes": audit["fixes"]}),
             "position": position,
-            "pivot": rate_scraper.pivot(position),
-            "leads": sorted({r["lead_days"] for r in position}),
+            "pivot": rate_scraper.pivot(shown),
+            "leads": sorted({r["lead_days"] for r in shown}),
             "pos": pos,
             "pos_label": _lead_label(lead),
             "rr": "–" if rr is None else f"{rr:.0%}",
