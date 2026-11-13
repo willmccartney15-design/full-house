@@ -213,7 +213,7 @@ def prospect(
     if not result.reports:
         typer.echo(f"No properties found for '{area}'.")
         return
-    typer.secho(f"{a.count} properties · area median ${a.median_price or 0:.0f}/night · "
+    typer.secho(f"{a.count} properties · area median {f'${a.median_price:.0f}/night' if a.median_price else 'price n/a'} · "
                 f"{result.searches_used} SerpApi searches used", bold=True)
     for r in result.reports[:10]:
         typer.echo(f"{r.rank:>2}. [{r.opportunity:>3}] {r.hotel.name}: {r.headline}")

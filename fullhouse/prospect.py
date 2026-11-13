@@ -56,12 +56,17 @@ class ProspectReport:
         h = self.hotel
         if not h.has_details:
             return "not checked"
+        if not any(s.price for s in h.prices):
+            return "no prices shown"
         if h.direct_price is None:
             return "no direct price"
         ota = h.best_ota
         if ota and ota.price < h.direct_price:
             return f"{ota.source} cheaper"
         return "direct cheapest"
+
+
+IMAGE_SAMPLE = 9  # SerpApi's property responses list at most this many images
 
 
 @dataclass
@@ -137,7 +142,9 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
     r = ProspectReport(hotel=h)
     add = lambda sev, text, pts: r.issues.append(Issue(sev, text, pts))  # noqa: E731
 
-    if h.has_details:
+    if h.has_details and any(s.price for s in h.prices):
+        # Only judge direct booking when Google shows some price: with none at all (no availability, or Google
+        # has no rates for these dates) there is no evidence either way.
         ota = h.best_ota
         if h.direct_price is None:
             add("high", "Google shows no price from the property's own site, so guests can only book through "
@@ -171,7 +178,8 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
     if missing:
         add("medium" if len(missing) >= 2 else "low",
             f"Missing amenities most of the area lists: {', '.join(missing[:4])}.", min(15, 4 * len(missing)))
-    if h.has_details and h.images < 10:
+    # SerpApi returns a sample of images (9 in real responses), not the full count: only a shorter list is real.
+    if h.has_details and h.images < IMAGE_SAMPLE:
         add("low", f"Only {h.images} photos on Google.", 5)
     if not h.website:
         add("medium", "No website linked on Google.", 10)

@@ -1,0 +1,235 @@
+{
+ "ChgIp_Xlt-b5uoiyARoLL2cvMXRkNHZmX3IQAQ": {
+  "type": "hotel",
+  "name": "Kyamba Court Motel",
+  "property_token": "ChgIp_Xlt-b5uoiyARoLL2cvMXRkNHZmX3IQAQ",
+  "address": "94 Brisbane Rd, Mooloolaba QLD 4557, Australia",
+  "phone": "+61 7 5444 0202",
+  "overall_rating": 4.2,
+  "reviews": 158,
+  "hotel_class": "3-star hotel",
+  "extracted_hotel_class": 3,
+  "amenities": [
+   "Wi-Fi",
+   "Credit cards",
+   "Baggage storage",
+   "Kid-friendly",
+   "Outdoor pool",
+   "Parking",
+   "Air conditioning",
+   "Kitchen in some rooms",
+   "Refrigerator",
+   "Microwave",
+   "Private bathroom",
+   "Shower"
+  ],
+  "excluded_amenities": [
+   "Breakfast",
+   "Hot tub",
+   "Fitness center",
+   "Spa",
+   "Accessible",
+   "Pet-friendly"
+  ],
+  "images": [
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcUMsf76DtT_0von92AD9P7eR_S2451gQAVA_DRXsBmcvuNNJ8YEVEL8rftcFNt-NlUcrgdZ8ZaL0qMHmtCAXdKMOG3Yo1fus_-xVSLJBWLHjQoVHG1cywT_N3CcfY-7lpbFD8qzlsPdehD=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLc-Q6ONUIUpiJo-K5S3rLKKzNWM_oUwKQKosiN0LX29JIgpme3j-9Y-Lw4mwC13Pi4XjzBUq7fVgU5fUPbqgxvjtZKxAy-oxrgTjBFys_xqozdZEycO1u9rmrSEQgMY2sSdAA-udA=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLckjuX_5f8zIW9B0e0vWE8ai1WXEhN8wdufxE9GZI46Jf2nRtvvb4VyVO8V_M96HmiGq7308YQpLbhyWi8aHJrdFjU4wF9iM1ZlkBU3xfdOSOUSeIeTfMMFY2QepRs3ouDS93XP=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLd10yYAwVjCGbvC9Bze74Qg9OjlrE41re8CmXGYPyT3z77foYmxbOotHUtAzuOJDTSTUCvoF6xcCc4LCgDj71Rk3POSxf4U5D72aecq5uMQfaOdbdE-J7Zmb7G97-RR1cltIvedJOmyDnhZ=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLf0z6ZtxkKoSS-S7jS2UtM8_CN1QT2WOfEyCzCJ6qsv0FmGdxPPgXo7Cy4uY2E3K3LtBsiZJxrE-FFBJZzkQWQtr7pbOAfUaIghjAr65XiODa107QO3FiBYzk2sG630vXBE3xgpiIoS-Xb8=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3ywWYCgu6okoXaJ4XgwYoVJ05Z_4c_nPOHApyo48pYqL9QXTWNzh6UGrZsQ4hpkJgnkejwaIzmLFR5TcUqVD605R6WmUmvaH0XpGAPYX1YBPQfKDupm-MFDf2-cNiQmkZDrp1-Eza2NexrOxzW-UmpKsUTI4MV9Up_V9-TCRT_1jXKZsm54uI=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLe0Adnb7fOj2XNRKG5W3QiFv7k5pelGW_Im8_w3f1yLw6MrQBX8D13cbk9gIFIP11t5nLgE0edi4QLUTA8sheoId9hlMV5PIIGiexOG1iVQkh3kS1wg9nHHCoQ2FZ9TwbLNsEf0EZPA04D6=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcQhYk8yIRnnpfDmaw6CVy-k6SrbfBIcWuGZAMNXKkzCdGhr4xloR0wHW9Zcjcv9qNNZz8c4k9ib4ynXvqiGDo6eVixgNzrOYCXfbiGa_rA4jDI5EsgspfI1FQRheAcLguRREqup3DK_9rC=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcN-asqZvUW7vioLwLan54TyZLJXz7B19AD2K548SwNP9IeDaEnI_M0-r8mfIHfqVGTOrTn7dNrgX0nSTO5yQ9MzVn1u9XiHDsWccn032w3-HEGPqDHaN_6v8PTNnEZx55hF68qBjAs7k0Q=s287-w287-h192-n-k-no-v1"
+   }
+  ],
+  "other_reviews": [
+   {
+    "source": "Tripadvisor",
+    "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_100532569.png",
+    "source_rating": {
+     "score": 4.199999809265137,
+     "max_score": 5
+    },
+    "reviews": 67,
+    "user_review": {
+     "username": "Rysa21",
+     "date": "a year ago",
+     "rating": {
+      "score": 5,
+      "max_score": 5
+     },
+     "comment": "What a little gem!! |Pulled up touch early, the superstar host, ran to check room ok- there you go Room 1. Clean! Comfortable bed!Car park outside door! old fashion good hotel room. 3-4 minute walk to surf club. I'll be back.",
+     "link": "https://www.tripadvisor.com/Hotel_Review-g261638-d2275326-r1017241002?m=68573&staydates=2026_11_22_2026_11_23&uguests=1_2_0&supdv=desktop&supuc=MX&supul=en"
+    },
+    "source_number": 100532569,
+    "serpapi_link": "https://serpapi.com/search.json?engine=google_hotels_reviews&hl=en&property_token=ChgIp_Xlt-b5uoiyARoLL2cvMXRkNHZmX3IQAQ&source_number=100532569"
+   }
+  ]
+ },
+ "ChcI6em-v9vokPFSGgsvZy8xdGZsOXYxcxAB": {
+  "type": "hotel",
+  "name": "River Esplanade Motel Mooloolaba",
+  "property_token": "ChcI6em-v9vokPFSGgsvZy8xdGZsOXYxcxAB",
+  "address": "98 River Esplanade, Mooloolaba QLD 4557, Australia",
+  "phone": "+61 7 5444 3855",
+  "overall_rating": 3.4,
+  "reviews": 24,
+  "hotel_class": "3-star hotel",
+  "extracted_hotel_class": 3,
+  "amenities": [
+   "Kid-friendly",
+   "Air conditioning"
+  ],
+  "excluded_amenities": [
+   "Pet-friendly"
+  ],
+  "images": [
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW0xjj2J2hwTAQjJr6bUo-nr-DK_L52bPFvB69WwfRwaHoNUZxhOl-kPDt00RVriQbKzE5TEDdBSorgoKWQqURgglFBxPrPw0sByg9l2j669CX8r326tLIOpiIyQOs1Vyl4bOVxF5DeRVobr6wP3JKV2P91cTivUum9GeMkCvTDhTCX0i7zqdvwpiw=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLd3toQvj1SRwgpfKLY6i1lWmfsVl45MFKTKcV23c3O8I1-W4sg-To1t8N2IxGJ75D1BAvOZIkhozGvJoNtzhsyZ5OidSTsLALKtL23G52eTrKLaQ0C6VzXKmDFr67kuS2YAiRSX=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdxp5PIr1ro6h_R3nU69GwxsEUFoc8NeY_84IcUa7TE_AX4rnriKrZQ8BZbNYs0tDsXVtJp2nCwQ_ZMsD9vkwmMYS5tquYB3EJOGKxpu2EnHcRhf1ZT0ts0mY9j6q3rfOyLAx4t=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3EfbAOk9HntqkSEtS7ZCtQiRuVKZXIY1QGQdiguJBzv_8Ye0-QZJBYrJJMpFGvwp2IbNioyoc7pQqjSdjDl6fipOIfr8oyBF_nJAFLTzmaO-wCUAq2UkIlkjh8DTEYMO_cS57ue7ZYMIPSELKxEPH1EXTiV0bMn47IDnUMHqLsa981c2e51sgB=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW184M7obGEn8dUVoPlg9VlTno4h_-70SkB7OJWw3TOcF3k-tKmKWq9Nu5_wcWNaq08rVqV44fvKdo1Y7YbuXAZVpG5UDrciIuAbG4vQaBBW3WBNrUkmDXgJn2HFc4FZfmLTLwNzby4qmHVRoG_mBzGwROkNp9FX0fzpKbZEmb50Q8HclxuYw-qe=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=2blvtZ6jS7MZClnW_PDC8g&cb_client=search.gws-prod.grass&yaw=275.48532&pitch=-4.8081183&thumbfov=100&w=287&h=192&scale=2"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdmpapGilnQLax3XYHVhW9ogLdCmSXyI0bB6guAm33lzTo-N2zsA-r8tbHvvEtzzUAMmxhb7yRm1X7aOLdBu4SgW5Ws0M6p_ZGomfLxHt46vLl5pmEsx03HKmyajHh36qHNtTy6MQ=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLemwI_t03ufOh5J1P8AjI8FYaHWchk-jonPWYg6M-HdHTQpKU3dmpoGANjgCTeDSzMs6ZSEGJtubucWc7vFSKqNuEeeQOSzbIe3FYqT4yDOW7tNZBfNtn7H22apAIbmMNaxY6I_=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLfzNCca7nUG42hPEs-ToLwCR-iuS3rjjvvqy2FLXhNgpri02WgwqSFgfDEI7XJsIBO0v8GkgG2S48wqgYAQvP7rQKWjnlCoRZePiACZhcTR7z-fb-k47axBa4m6FQxvieCmD5J6=s287-w287-h192-n-k-no-v1"
+   }
+  ],
+  "other_reviews": [
+   {
+    "source": "Tripadvisor",
+    "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_100532569.png",
+    "source_rating": {
+     "score": 3.700000047683716,
+     "max_score": 5
+    },
+    "reviews": 89,
+    "user_review": {
+     "username": "678rexm",
+     "date": "a year ago",
+     "rating": {
+      "score": 1,
+      "max_score": 5
+     },
+     "comment": "This has to the worst air bnb you can hire. Absolute crap hole. Putrid smells and junky fights every hour. Dont stay here unless you\u2019re looking to buy some dodgy pills from one of the crackheads out the front. Worst house in the area do not stay here.",
+     "link": "https://www.tripadvisor.com/Hotel_Review-g261638-d647771-r986432100?m=68573&staydates=2026_11_22_2026_11_23&uguests=1_2_0&supdv=desktop&supuc=MX&supul=en"
+    },
+    "source_number": 100532569,
+    "serpapi_link": "https://serpapi.com/search.json?engine=google_hotels_reviews&hl=en&property_token=ChcI6em-v9vokPFSGgsvZy8xdGZsOXYxcxAB&source_number=100532569"
+   }
+  ]
+ },
+ "ChgIgvvmw_yIi7cHGgwvZy8xMmhuNGhnNGgQAQ": {
+  "type": "hotel",
+  "name": "Central Motel Mooloolaba",
+  "link": "http://www.centralmotelmooloolaba.com.au/",
+  "property_token": "ChgIgvvmw_yIi7cHGgwvZy8xMmhuNGhnNGgQAQ",
+  "address": "98 River Esplanade, Mooloolaba QLD 4557, Australia",
+  "phone": "+61 7 5444 3855",
+  "overall_rating": 3.3,
+  "reviews": 123,
+  "hotel_class": "3-star hotel",
+  "extracted_hotel_class": 3,
+  "amenities": [
+   "Wi-Fi",
+   "Kid-friendly",
+   "Pool",
+   "Outdoor pool",
+   "Parking",
+   "Air conditioning"
+  ],
+  "excluded_amenities": [
+   "Hot tub",
+   "Pet-friendly",
+   "Fitness center",
+   "Spa"
+  ],
+  "images": [
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2oGxCNTsGBVWbGrgVdS7F9n8Nmdm_8ZUNYdWqZ-fjlGWgB1nKwCvTJj0uWvaVjmK9Azb1bRhlWNsc40US0vYyfB_K8jTyaVabL7jJZ1zLq_E673aGb4gJK6-pYSSLh-_Ad8N5U_trbn2GPMZbWE6nfW8u1fDBsm-9b32lYAxWgzGicGqNapvs=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLeIH_TsHM_3w9JxgQtJQE-OHT1yVnszHuKZz0p6DuUVPyp1zZkRwU519dUlZSrjZV3yOCy5eXIxVnPRiF-iQG6T51vb9kb6cUlkXN_K-Mo4FTMFByXiL22EQjPNbIr2OeVOdMin=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW10x8uAVxxD_vxSFBPqvFnWUhE5QEkRuoLsIUkZ7vN3zuXxpXEPkLEcLj9J302xTofEnf5V7hwgounfbE9LUSn0GHMd28e8E32gPqFkHOsAaEqCRMN8FK5lVgLETGvgVEbovPFbOkFmrHgRAktW2cWe_QWOprpnvJFLBLgeBud0T5N-NziRpCdM=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2VvY58E9Y4Q7EPIKHYwarlq3hDV98tra1oXzJ0eiZpt3eu97NQPLw8TrG7oj9eY_64-OsE2SbMijQXnAxVid_8CTRB-KgXAy5RAh_39Gzr6bGfgkwjEhKXKakwYAcrPu_z8s3giIYPkg_ji4bp7UbEH3Q0UFAINCmeQbx5dQRglasOuzIhkAhi_g=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW0leGXafZw-Rcx6kclvg5sc6PYak5X24CpgL_ZjBd_z53pQx0wABZXTJL-Co4_DJrJPo13zsPi9mvMd5ZGBjiH5OQxvKBgS5uYGfOrS9MzQvLA8heG6oaw7PHvx4wr9lgLa3d6Lg6oXhjEcYwZVWrWz-pZO4unbyrzyONLSH3iREpf3wskkIaGhoA=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2SANYrq9xdb7kgPuitDRDsKbM8JaFQum6ls3dbw3l3s3rnHH5Fv_RqVSqOT3FdAuiTu3_WoXQcdkpeSSHQvRJa-6xJie7Sne6j92bq70wk2GejBaHcszG2KcdnIqe_WB3Hj9MfDTfHCPC8Sg6hfAkpfG40VxVfcD8NJnr-v7XhsmbpZaK3ojoh=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW25Rm9tvrTzlQFSorYR8tBd-3EpjfPXJoLqlR-wg4cxfve9AM6tBvTuQPZVeItbHA6nGxZYWt9q9TvQ3UOSNqk2zNicPJytA4h-IYNZqu0Q2zSkj_5L56QiStIFgCKkmqUdjGz26esYYvVUJJ-tjdzD_xyyzwKLQkVYOa6Di0uvBWuw-mZaldfB6Q=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW0mLmmKQUAeOEQ5LIGdewPGSLhPHHAqfcIgsJC6Lb38F7txOUOeAhZ4EOXZhbyDCLHgxWIx426KrW7i1kvMM74vtV8NsKVnl0gCRL22VRGbE1HZbxMbOOK4npfRqtJRoWlW3dTkoHKipmV4HYlktAnJ60pRtpPOQZskMdp3USmoYjZbZtuypVLk=s287-w287-h192-n-k-no-v1"
+   },
+   {
+    "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3eDYGiA4V9RggRI4QakuRDy-IT7cHxtWOhe_1Cfe3OQ3le15ezLpJcMrfy0uU_joZuiqhmPHGJjC1CZQtTdE4ucBGxurquiiMnHI1hAbsPMoGJjAnWpYP9KV_LQAN0inHx_t7rCv11S3LaNFSmj1DTEkcD7tX5efvym1fTXRVyawYxerudSeSY-A=s287-w287-h192-n-k-no-v1"
+   }
+  ],
+  "other_reviews": [
+   {
+    "source": "Tripadvisor",
+    "source_icon": "https://www.gstatic.com/travel-hotels/branding/icon_100532569.png",
+    "source_rating": {
+     "score": 3.0999999046325684,
+     "max_score": 5
+    },
+    "reviews": 49,
+    "user_review": {
+     "username": "sandradX3024LM",
+     "date": "2 years ago",
+     "rating": {
+      "score": 3,
+      "max_score": 5
+     },
+     "comment": "dingy looking from the outside with booking online only, but a clean and well located spot.  a request for an early check in was accommodated.  excellent location being in the heart of the sunshine coast.  i'd stay again  when travelling through",
+     "link": "https://www.tripadvisor.com/Hotel_Review-g261638-d3566438-r937935837?m=68573&staydates=2026_11_22_2026_11_23&uguests=1_2_0&supdv=desktop&supuc=GB&supul=en"
+    },
+    "source_number": 100532569,
+    "serpapi_link": "https://serpapi.com/search.json?engine=google_hotels_reviews&hl=en&property_token=ChgIgvvmw_yIi7cHGgwvZy8xMmhuNGhnNGgQAQ&source_number=100532569"
+   }
+  ]
+ }
+}

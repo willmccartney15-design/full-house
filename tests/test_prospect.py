@@ -125,3 +125,27 @@ def test_cli_prospect_dry_run(tmp_path, monkeypatch):
     assert result.exit_code == 0, result.output
     assert "1. [" in result.output and "Coral Sands Motel" in result.output and "shortlist.pdf" in result.output
     assert CliRunner().invoke(app, ["prospect", "x", "--type", "castle", "--dry-run"]).exit_code == 2
+
+
+class RealMooloolaba(FixtureHotels):
+    """Trimmed real SerpApi responses (Mooloolaba motels, 2026-11-27): Google showed no price for any of them."""
+
+    def __init__(self):
+        self.calls, self.requests = 0, []
+        real = FIX / "real"
+        self.p1 = self.p2 = json.loads((real / "mooloolaba_search.json").read_text())
+        self.details_by_token = json.loads((real / "mooloolaba_details.json").read_text())
+
+
+def test_real_response_without_prices(ctx):
+    run = prospect.run(ctx, RealMooloolaba(), "Mooloolaba QLD", ctx.today + timedelta(days=14), limit=20, snapshots=0)
+    by_name = {r.hotel.name: r for r in run.reports}
+    assert set(by_name) == {"Central Motel Mooloolaba", "Kyamba Court Motel", "River Esplanade Motel Mooloolaba"}
+    assert run.area.median_price is None
+    kyamba = by_name["Kyamba Court Motel"].hotel
+    assert (kyamba.rating, kyamba.reviews, kyamba.phone, kyamba.website) == (4.2, 158, "+61 7 5444 0202", None)
+    assert by_name["Central Motel Mooloolaba"].hotel.website == "http://www.centralmotelmooloolaba.com.au/"
+    for r in run.reports:
+        assert r.hotel.price is None and r.direct_status == "no prices shown"
+        # No price from anyone is not evidence of OTA-only booking, and 9 images is SerpApi's sample, not a count.
+        assert "OTAs" not in r.headline and "photos" not in r.headline
