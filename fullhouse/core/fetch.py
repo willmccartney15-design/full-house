@@ -128,10 +128,28 @@ class Fetcher:
             page = context.new_page()
             start = time.perf_counter()
             resp = page.goto(url, wait_until="domcontentloaded", timeout=45_000)
-            page.wait_for_timeout(2_000)  # let client-side rendering settle
-            return Page(url=page.url, status=resp.status if resp else 0, html=page.content(), elapsed_ms=_ms(start))
+            html = self._settled_content(page)
+            return Page(url=page.url, status=resp.status if resp else 0, html=html, elapsed_ms=_ms(start))
         finally:
             context.close()
+
+    @staticmethod
+    def _settled_content(page, attempts: int = 5) -> str:
+        """Page HTML once client-side redirects and rendering have finished."""
+        from playwright.sync_api import Error as PlaywrightError
+
+        for attempt in range(attempts):
+            try:
+                page.wait_for_load_state("networkidle", timeout=15_000)
+            except PlaywrightError:
+                pass  # busy pages never go fully idle; read what is there
+            page.wait_for_timeout(1_000)
+            try:
+                return page.content()
+            except PlaywrightError as exc:
+                if "navigating" not in str(exc) or attempt == attempts - 1:
+                    raise FetchError(f"{page.url}: page never settled ({exc})") from exc
+        raise FetchError(f"{page.url}: page never settled")
 
     def _cache_path(self, url: str, render: bool) -> Path:
         key = hashlib.sha256(f"{render}:{url}".encode()).hexdigest()

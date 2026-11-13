@@ -22,3 +22,21 @@ def test_cli_demo(tmp_path, monkeypatch):
     assert "[monday_report]" in result.output
     result = CliRunner().invoke(app, ["run", "nope", "--client", "1", "--dry-run"])
     assert result.exit_code == 2
+
+
+def test_audit_reports_a_blocked_search(ctx, monkeypatch):
+    import pytest
+
+    from fullhouse.core.fetch import Page
+
+    real_get = ctx.fetcher.get
+
+    def get(url, **kw):
+        if "searchresults" in url:  # what Booking.com serves automated clients: a shell with no results
+            return Page(url="https://www.booking.com/searchresults.en-gb.html", status=202, html="<html></html>",
+                        elapsed_ms=1)
+        return real_get(url, **kw)
+
+    monkeypatch.setattr(ctx.fetcher, "get", get)
+    with pytest.raises(audit.BlockedError, match="no search results"):
+        audit.run(ctx, SAMPLE_BOOKING_URL)

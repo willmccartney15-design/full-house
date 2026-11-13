@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import contextmanager
 
+from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
 from sqlmodel import Session, SQLModel, create_engine
 
@@ -23,7 +24,26 @@ def get_engine(db_url: str) -> Engine:
 def init_db(db_url: str) -> Engine:
     engine = get_engine(db_url)
     SQLModel.metadata.create_all(engine)
+    _add_missing_columns(engine)
     return engine
+
+
+def _add_missing_columns(engine: Engine) -> None:
+    """create_all never alters existing tables; add columns introduced since a database was created."""
+    inspector = inspect(engine)
+    with engine.begin() as conn:
+        for table in SQLModel.metadata.sorted_tables:
+            if not inspector.has_table(table.name):
+                continue
+            have = {c["name"] for c in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name in have:
+                    continue
+                ddl = column.type.compile(dialect=engine.dialect)
+                default = column.default.arg if column.default is not None and column.default.is_scalar else None
+                clause = f" DEFAULT '{default}'" if isinstance(default, str) else (
+                    f" DEFAULT {default}" if default is not None else "")
+                conn.execute(text(f'ALTER TABLE "{table.name}" ADD COLUMN "{column.name}" {ddl}{clause}'))
 
 
 @contextmanager

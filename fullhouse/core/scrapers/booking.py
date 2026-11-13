@@ -8,6 +8,8 @@ tests/fixtures and update the selectors against it.
 
 from __future__ import annotations
 
+import re
+from collections import Counter
 from datetime import date, timedelta
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
@@ -58,12 +60,9 @@ def parse_listing(html: str, url: str) -> ListingData:
     listing.description = text(
         first(doc, '[data-testid="property-description"]', "#property_description_content", "#summary")
     )
-    address = text(first(doc, '[data-testid="address"]', ".hp_address_subtitle"))
-    if address:
-        parts = [p.strip() for p in address.split(",")]
-        if len(parts) >= 2:
-            listing.locality = parts[-2] if len(parts) >= 3 else parts[0]
-            listing.region = parts[-1]
+    address = text(first(doc, '[data-testid="address"]', '[data-testid="PropertyHeaderAddressDesktop-wrapper"]',
+                         ".hp_address_subtitle"))
+    listing.locality, listing.region = parse_address(address)
 
     photos = select_all(doc, '[data-testid="gallery-image"]', ".bh-photo-grid-item", "#photo_wrapper img")
     more = count_from_text(doc, r"\+\s?(\d+)\s+photos")
@@ -75,7 +74,7 @@ def parse_listing(html: str, url: str) -> ListingData:
         '[data-testid="facility-list-most-popular-facilities"] li',
         ".hp_desc_important_facilities li",
     )
-    listing.amenities = [t for t in (text(f) for f in facilities) if t]
+    listing.amenities = list(dict.fromkeys(t for t in (text(f) for f in facilities) if t))  # page lists them twice
 
     for row in select_all(doc, '[data-testid="room-row"]', "#hprt-table tbody tr"):
         name = text(first(row, '[data-testid="room-name"]', ".hprt-roomtype-icon-link", ".hprt-roomtype-link"))
@@ -110,6 +109,10 @@ def parse_listing(html: str, url: str) -> ListingData:
         listing.review_response_rate = round(responded / len(reviews), 2)
 
     apply_json_ld(listing, doc)
+    listing.nights = stay_nights(html)
+    if listing.nights > 1:  # Booking.com shows the price of the whole stay; we report per night
+        for room in listing.rooms:
+            room.price = round(room.price / listing.nights, 2) if room.price else room.price
     return listing
 
 
@@ -124,4 +127,67 @@ def parse_search(html: str, base_url: str = "https://www.booking.com") -> list[S
         href = urljoin(base_url, link.get("href", "")).split("?")[0]
         price = parse_price(text(first(card, '[data-testid="price-and-discounted-price"]')))
         results.append(SearchResult(name=name, url=href, price=price))
+    nights = stay_nights(html)
+    if nights > 1:  # card prices are for the whole stay
+        for r in results:
+            r.price = round(r.price / nights, 2) if r.price else r.price
     return results
+
+
+def canonical_url(html: str) -> str | None:
+    """The property URL a saved page belongs to (canonical link or og:url), without query string."""
+    doc = soup(html)
+    for node, attr in ((doc.select_one('link[rel="canonical"]'), "href"),
+                       (doc.select_one('meta[property="og:url"]'), "content")):
+        href = (node.get(attr) or "").split("?")[0] if node else ""
+        if href and is_booking_url(href) and "/hotel/" in href:
+            return href
+    return None
+
+
+_CHECKIN_RE = re.compile(r"checkin[\"'=:\s]+\"?(\d{4}-\d{2}-\d{2})")
+_CHECKOUT_RE = re.compile(r"checkout[\"'=:\s]+\"?(\d{4}-\d{2}-\d{2})")
+_AU_STATES = r"\b(?:VIC|NSW|QLD|SA|WA|TAS|NT|ACT)\b"
+_COUNTRIES = ("Australia", "New Zealand")
+
+
+def parse_address(address: str) -> tuple[str, str]:
+    """(locality, region) from a Booking.com address line.
+
+    Handles '1 Example Esplanade, Mooloolaba, Queensland' and the newer
+    '380 Russell Street, 3000 Melbourne, Australia Excellent location ...' (no state; JSON-LD fills it).
+    """
+    if not address:
+        return "", ""
+    for country in _COUNTRIES:
+        if (i := address.find(country)) != -1:
+            address = address[:i].rstrip(", ")
+            parts = [p.strip() for p in address.split(",") if p.strip()]
+            if len(parts) < 2:
+                return "", ""
+            town = re.sub(r"\b\d{4}\b|" + _AU_STATES, "", parts[-1]).strip(" ,")
+            return town, ""
+    parts = [p.strip() for p in address.split(",") if p.strip()]
+    if len(parts) >= 3:
+        return parts[-2], parts[-1]
+    if len(parts) == 2:
+        return parts[0], parts[1]
+    return "", ""
+
+
+def _most_common(regex: re.Pattern, html: str) -> date | None:
+    found = Counter(regex.findall(html))
+    return date.fromisoformat(found.most_common(1)[0][0]) if found else None
+
+
+def stay_nights(html: str) -> int:
+    """Nights in the stay a saved or fetched page was priced for (1 when unknown)."""
+    checkin, checkout = _most_common(_CHECKIN_RE, html), _most_common(_CHECKOUT_RE, html)
+    if checkin and checkout and 1 <= (checkout - checkin).days <= 30:
+        return (checkout - checkin).days
+    return 1
+
+
+def detect_checkin(html: str) -> date | None:
+    """Most common check-in date mentioned in a saved page (links and embedded JSON carry it)."""
+    return _most_common(_CHECKIN_RE, html)

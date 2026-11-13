@@ -1,7 +1,9 @@
 <!doctype html>
 <html><head><title>{{ p.name }}, {{ p.locality }} – Updated prices</title>
+<link rel="canonical" href="https://www.booking.com/hotel/au/{{ p.slug }}.en-gb.html">
 <script type="application/ld+json">{{ ld | tojson }}</script></head>
 <body>
+<a class="change-dates" href="/hotel/au/{{ p.slug }}.en-gb.html?checkin={{ checkin }}&amp;checkout={{ checkout }}">Change dates</a>
 <h2 class="pp-header__title" data-testid="property-name">{{ p.name }}</h2>
 <span data-testid="address">1 Example Esplanade, {{ p.locality }}, {{ p.region }}</span>
 <div class="gallery">

@@ -17,7 +17,7 @@ TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
 _env = Environment(loader=FileSystemLoader(TEMPLATE_DIR), autoescape=select_autoescape(["html"]))
 _env.filters["money"] = lambda v: "–" if v is None else f"${v:,.0f}"
 _env.filters["pct"] = lambda v: "–" if v is None else f"{v:+.1f}%"
-_env.filters["title_room"] = lambda v: str(v).replace("_", " ").title()
+_env.filters["title_room"] = lambda v: "Cheapest room" if v == "lowest" else str(v).replace("_", " ").title()
 
 
 def render_html(template: str, context: dict) -> str:

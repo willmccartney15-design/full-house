@@ -59,21 +59,52 @@ def _print_result(res) -> None:
 
 @app.command()
 def audit(
-    property_url: str = typer.Argument(..., help="Booking.com property URL"),
+    property_url: Optional[str] = typer.Argument(None, help="Booking.com property URL (live mode)"),
+    html: Optional[Path] = typer.Option(None, "--html", help="Property page saved from your browser (offline mode)"),
+    search_html: Optional[Path] = typer.Option(None, "--search-html",
+                                               help="Saved Booking.com search results for the area: competitors"),
+    competitor_html: Optional[list[Path]] = typer.Option(None, "--competitor-html",
+                                                         help="Saved competitor property page; repeat for each"),
+    checkin: Optional[str] = typer.Option(None, help="YYYY-MM-DD the pages were saved for (read from the page if omitted)"),
+    url: Optional[str] = typer.Option(None, "--url", help="Property URL, if the saved page does not include it"),
     website: Optional[str] = typer.Option(None, help="Property website, for the direct-booking checks"),
+    no_claude: bool = typer.Option(False, "--no-claude", help="Score with the built-in rubric only; no Claude calls"),
     dry_run: bool = DRY,
 ) -> None:
-    """Free Revenue Audit: 2-page PDF from one Booking.com URL."""
+    """Free Revenue Audit: a 2-page PDF, from a live URL or from pages saved in your browser (--html)."""
+    _audit(property_url, html=html, search_html=search_html, competitor_html=competitor_html or [],
+           checkin=checkin, url=url, website=website, no_claude=no_claude, dry_run=dry_run)
+
+
+def _audit(property_url, *, html=None, search_html=None, competitor_html=(), checkin=None, url=None, website=None,
+           no_claude=False, dry_run=False) -> None:
     from fullhouse import audit as audit_mod
     from fullhouse.sample import SAMPLE_BOOKING_URL
 
-    if dry_run and not property_url.startswith(SAMPLE_BOOKING_URL):
+    if html is None and property_url is None:
+        typer.secho("Give a Booking.com URL, or --html with a property page saved from your browser.", fg="red")
+        raise typer.Exit(2)
+    if html is None and dry_run and not property_url.startswith(SAMPLE_BOOKING_URL):
         typer.secho(f"--dry-run uses the offline sample market; using {SAMPLE_BOOKING_URL}", fg="yellow")
         property_url, website = SAMPLE_BOOKING_URL, website or "https://coralsands.example/"
     with context(dry_run=dry_run) as ctx:
-        out = audit_mod.run(ctx, property_url, website=website)
+        if no_claude:
+            ctx.claude.dry_run = True
+        try:
+            if html is not None:
+                out = audit_mod.run_saved(
+                    ctx, html, url=url or property_url, search_html=search_html, competitor_html=list(competitor_html),
+                    checkin=date.fromisoformat(checkin) if checkin else None, website=website,
+                )
+            else:
+                out = audit_mod.run(ctx, property_url, website=website)
+        except (audit_mod.BlockedError, audit_mod.SavedPageError) as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
     typer.secho(out.headline, bold=True)
-    typer.echo(f"Competitors: {', '.join(out.competitors)}")
+    typer.echo(f"Competitors ({len(out.competitors)}): {', '.join(out.competitors) or 'none'}")
+    for note in out.notes:
+        typer.secho(f"Note: {note}", fg="yellow")
     typer.secho(f"PDF ({out.pages} pages): {out.pdf}", fg="green")
 
 
@@ -127,8 +158,8 @@ def schedule(
 @app.command()
 def demo() -> None:
     """5-minute offline demo: free audit, then the full weekly run, on the sample motel."""
-    audit(property_url="https://www.booking.com/hotel/au/coral-sands-motel.en-gb.html",
-          website="https://coralsands.example/", dry_run=True)
+    _audit("https://www.booking.com/hotel/au/coral-sands-motel.en-gb.html",
+           website="https://coralsands.example/", dry_run=True)
     typer.echo("")
     weekly(dry_run=True, client=None)
 
@@ -142,6 +173,50 @@ def import_metrics(csv_path: Path, client: int = typer.Option(..., "--client")) 
     with context() as ctx:
         n = import_csv(ctx.session, _client(ctx, client).id, csv_path)
     typer.secho(f"Imported {n} weeks.", fg="green")
+
+
+@app.command("import-rates")
+def import_rates(
+    csv_path: Path,
+    client: int = typer.Option(..., "--client"),
+    map_: Optional[list[str]] = typer.Option(None, "--map", help="Rename a column: 'Their column=stay_date'. Repeat."),
+    add_competitors: bool = typer.Option(False, "--add-competitors",
+                                         help="Add properties the file names that are not competitors yet"),
+    dry_run: bool = DRY,
+) -> None:
+    """Import competitor rates from a rate-shopper export (RoomPriceGenie, PriceLabs, Lighthouse, spreadsheet).
+
+    Long layout: stay_date,property,price[,room_type,nights,snapshot_date,ota]. Wide layout: stay_date then
+    one column per property. The rate agent uses an import from the last 7 days instead of fetching OTAs.
+    """
+    from fullhouse.core.rate_import import RateImportError
+    from fullhouse.core.rate_import import import_rates as do_import
+
+    column_map = {}
+    for item in map_ or []:
+        if "=" not in item:
+            typer.secho(f"--map needs 'Column=field', got {item!r}", fg="red")
+            raise typer.Exit(2)
+        k, v = item.split("=", 1)
+        column_map[k.strip()] = v.strip()
+    with context(dry_run=dry_run) as ctx:
+        _seed_if_dry(ctx, dry_run)
+        try:
+            r = do_import(ctx.session, _client(ctx, client), csv_path, today=ctx.today, column_map=column_map,
+                          add_competitors=add_competitors)
+        except RateImportError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    typer.secho(f"Stored {r.stored} prices across {r.stay_dates} stay dates from {r.rows} rows.", fg="green")
+    if r.added_competitors:
+        typer.echo(f"Added competitors: {', '.join(r.added_competitors)}")
+    if r.unmatched:
+        names = ", ".join(f"{n} ({c})" for n, c in r.unmatched.items())
+        typer.secho(f"Not matched to the client or a competitor, skipped: {names}. Re-run with --add-competitors "
+                    "to add them, or rename them in the file.", fg="yellow")
+    if r.skipped:
+        typer.secho(f"{r.skipped} rows had no usable stay date (or a date before the extract) and were skipped.",
+                    fg="yellow")
 
 
 @app.command("import-reviews")
