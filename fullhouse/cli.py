@@ -175,6 +175,51 @@ def import_metrics(csv_path: Path, client: int = typer.Option(..., "--client")) 
     typer.secho(f"Imported {n} weeks.", fg="green")
 
 
+@app.command()
+def prospect(
+    area: str = typer.Argument(..., help="Where to search, e.g. 'Mooloolaba QLD'"),
+    checkin: Optional[str] = typer.Option(None, help="YYYY-MM-DD; default 14 days from today"),
+    nights: int = typer.Option(1),
+    property_type: Optional[str] = typer.Option("motel", "--type",
+                                                help="motel, hostel, inn, bnb, apartment, resort, boutique, or 'any'"),
+    limit: int = typer.Option(20, help="Properties to analyse (each costs one SerpApi search for details)"),
+    no_details: bool = typer.Option(False, "--no-details", help="Search results only: cheaper, no prices by site"),
+    snapshots: int = typer.Option(10, help="One-page PDF snapshots for the top N"),
+    dry_run: bool = DRY,
+) -> None:
+    """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched."""
+    from datetime import timedelta
+
+    from fullhouse import prospect as prospect_mod
+    from fullhouse.core.serpapi import PROPERTY_TYPES, SerpApiClient, SerpApiError
+    from fullhouse.sample.serpapi import SampleHotels
+
+    ptype = None if property_type in (None, "any") else property_type
+    if ptype and ptype not in PROPERTY_TYPES:
+        typer.secho(f"Unknown --type {property_type}; choose from {', '.join(PROPERTY_TYPES)} or any.", fg="red")
+        raise typer.Exit(2)
+    if not no_details:
+        typer.echo(f"Up to {limit + 1 + limit // 20} SerpApi searches (cached results are free).")
+    with context(dry_run=dry_run) as ctx:
+        start = date.fromisoformat(checkin) if checkin else ctx.today + timedelta(days=14)
+        source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir)
+        try:
+            result = prospect_mod.run(ctx, source, area, start, nights=nights, property_type=ptype, limit=limit,
+                                      details=not no_details, snapshots=snapshots)
+        except (SerpApiError, ValueError) as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    a = result.area
+    if not result.reports:
+        typer.echo(f"No properties found for '{area}'.")
+        return
+    typer.secho(f"{a.count} properties · area median ${a.median_price or 0:.0f}/night · "
+                f"{result.searches_used} SerpApi searches used", bold=True)
+    for r in result.reports[:10]:
+        typer.echo(f"{r.rank:>2}. [{r.opportunity:>3}] {r.hotel.name}: {r.headline}")
+    typer.secho(f"Shortlist: {result.shortlist_pdf}\nCSV: {result.shortlist_csv}", fg="green")
+
+
 @app.command("import-rates")
 def import_rates(
     csv_path: Path,

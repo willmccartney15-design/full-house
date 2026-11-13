@@ -1,0 +1,22 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Prospect shortlist — {{ area.query }}</title>
+<link rel="stylesheet" href="base.css">
+<style>@page { size: A4 landscape; } td, th { font-size: 8pt; }</style></head>
+<body>
+<div class="brand">Full House · Prospect shortlist</div>
+<h1>{{ area.query }}</h1>
+<div class="sub">{{ area.count }} properties from Google Hotels · {{ area.checkin.strftime('%a %d %b %Y') }}, {{ area.nights }} night{{ 's' if area.nights > 1 }}, 2 adults ·
+area median {{ area.median_price|money }} a night, rating {{ '%.1f'|format(area.median_rating) if area.median_rating else '–' }} ·
+{{ run.searches_used }} SerpApi searches · {{ today.strftime('%d %b %Y') }}</div>
+<p class="lead">Ranked by opportunity: the higher the score, the more the property stands to gain and the stronger the pitch.</p>
+<table>
+  <tr><th class="n">#</th><th>Property</th><th class="n">Score</th><th class="n">Per night</th><th class="n">vs area</th>
+  <th class="n">Rating</th><th>Direct booking</th><th>Top finding</th></tr>
+  {% for r in run.reports %}
+  <tr><td class="n">{{ r.rank }}</td><td><strong>{{ r.hotel.name }}</strong>{% if r.hotel.phone %}<br><span class="small">{{ r.hotel.phone }}</span>{% endif %}</td>
+  <td class="n"><strong>{{ r.opportunity }}</strong></td><td class="n">{{ r.hotel.price|money }}</td><td class="n">{{ r.price_diff_pct|pct }}</td>
+  <td class="n">{{ '%.1f'|format(r.hotel.rating) if r.hotel.rating else '–' }}{% if r.hotel.reviews %} <span class="small">({{ r.hotel.reviews }})</span>{% endif %}</td>
+  <td>{{ r.direct_status }}</td><td>{{ r.headline }}</td></tr>
+  {% endfor %}
+</table>
+</body></html>

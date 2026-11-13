@@ -30,6 +30,25 @@ uv run playwright install chromium     # or set FULLHOUSE_CHROMIUM_PATH
 cp .env.example .env                    # add ANTHROPIC_API_KEY
 ```
 
+## Prospecting an area automatically
+
+`fullhouse prospect` finds every motel in an area through Google Hotels (via [SerpApi](https://serpapi.com/google-hotels-api)),
+audits each against the area and ranks them by opportunity. No OTA is fetched.
+
+```bash
+uv run fullhouse prospect "Mooloolaba QLD" --checkin 2026-12-01 --type motel --limit 20
+```
+
+For each property: price per night by booking site (including its own website, so you see when Booking.com
+undercuts it, or when Google shows no direct price at all), Google rating and reviews against the area, amenities
+most of the area lists that it doesn't, photo count and website. Output, under `output/prospects/<area>-<date>/`:
+a ranked `shortlist.pdf` and `shortlist.csv` (with phone and website for outreach), plus a one-page snapshot PDF
+for the top `--snapshots` properties. Every property is stored as a prospect, so a later `audit --html` builds on it.
+
+Cost: one SerpApi search per 20 results plus one per property for details (`--no-details` skips those and the
+booking-site prices). Responses are cached for 24 hours, so a re-run the same day is free. Set `SERPAPI_API_KEY`
+first; `--dry-run` uses an offline sample.
+
 ## Free audit from saved pages (recommended)
 
 Booking.com usually turns away automated clients, so the reliable way to run a free audit is from
@@ -57,6 +76,7 @@ only. Only `--website` is fetched live.
 
 | Command | What it does |
 | --- | --- |
+| `fullhouse prospect "<area>" [--checkin] [--type motel] [--limit 20]` | Find and rank prospects in an area from Google Hotels (see above). |
 | `fullhouse audit --html saved.html [--search-html ...] [--competitor-html ...]` | Free audit from pages saved in your browser (see above). |
 | `fullhouse audit <booking_url> [--website URL]` | Free audit: parses the listing, auto-picks 10 competitors from the same Booking.com search, runs rate_scraper + listing_auditor + funnel_checker, renders a 2-page PDF. Stores the property as a prospect. |
 | `fullhouse run <agent> --client <id>` | Runs one agent for one client. |
