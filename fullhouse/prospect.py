@@ -80,6 +80,7 @@ class Area:
     median_reviews: float | None
     median_amenities: float | None
     common_amenities: list[str]  # listed by at least 60% of the area
+    priced_share: float = 0.0  # share of properties with any price on Google for these dates
 
 
 @dataclass
@@ -95,7 +96,7 @@ class ProspectRun:
 
 
 def collect(source: HotelsSource, query: str, checkin: date, checkout: date, *, property_types: list[int] | None,
-            limit: int, details: bool) -> list[HotelData]:
+            limit: int, details: bool, max_class: int | None = None) -> list[HotelData]:
     hotels: list[HotelData] = []
     seen: set[str] = set()
     token = None
@@ -106,6 +107,8 @@ def collect(source: HotelsSource, query: str, checkin: date, checkout: date, *, 
             key = h.token or h.name
             if not h.name or key in seen or h.type == "vacation rental":
                 continue
+            if max_class is not None and h.hotel_class and h.hotel_class > max_class:
+                continue  # 4- and 5-star hotels and resorts are not the target market
             seen.add(key)
             hotels.append(h)
             if len(hotels) >= limit:
@@ -135,6 +138,7 @@ def benchmark(hotels: list[HotelData], query: str, checkin: date, nights: int) -
         median_price=med(h.price for h in hotels), median_rating=med(h.rating for h in hotels),
         median_reviews=med(h.reviews for h in hotels), median_amenities=med(len(h.amenities) for h in hotels),
         common_amenities=common,
+        priced_share=round(sum(1 for h in hotels if h.price) / len(hotels), 2) if hotels else 0.0,
     )
 
 
@@ -142,6 +146,15 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
     r = ProspectReport(hotel=h)
     add = lambda sev, text, pts: r.issues.append(Issue(sev, text, pts))  # noqa: E731
 
+    if h.has_details and not any(s.price for s in h.prices):
+        when = f"{area.checkin:%d %b}"
+        if area.priced_share >= 0.5:
+            add("high", f"Google Hotels shows no bookable price for {when}, while most of the area does: guests "
+                        "comparing prices on Google can't see or book it. Unless it is sold out, its booking engine "
+                        "isn't sending rates to Google (free booking links fix this).", 25)
+        else:
+            add("medium", f"Google Hotels shows no bookable price for {when}. Most of the area shows none either, "
+                          "so check another date before raising it.", 5)
     if h.has_details and any(s.price for s in h.prices):
         # Only judge direct booking when Google shows some price: with none at all (no availability, or Google
         # has no rates for these dates) there is no evidence either way.
@@ -193,7 +206,7 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
 
 def run(ctx: AgentContext, source: HotelsSource, query: str, checkin: date, *, nights: int = 1,
         property_type: str | None = "motel", limit: int = 20, details: bool = True,
-        snapshots: int = 10) -> ProspectRun:
+        snapshots: int = 10, max_class: int | None = 3) -> ProspectRun:
     from fullhouse.core.serpapi import PROPERTY_TYPES
 
     if checkin < ctx.today:
@@ -201,7 +214,7 @@ def run(ctx: AgentContext, source: HotelsSource, query: str, checkin: date, *, n
     types = [PROPERTY_TYPES[property_type]] if property_type else None
     calls_before = source.calls
     hotels = collect(source, query, checkin, checkin + timedelta(days=nights), property_types=types, limit=limit,
-                     details=details)
+                     details=details, max_class=max_class)
     area = benchmark(hotels, query, checkin, nights)
     reports = sorted((assess(h, area, ctx.settings.direct_rate_buffer_pct) for h in hotels),
                      key=lambda r: -r.opportunity)

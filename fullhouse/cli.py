@@ -185,9 +185,14 @@ def prospect(
     limit: int = typer.Option(20, help="Properties to analyse (each costs one SerpApi search for details)"),
     no_details: bool = typer.Option(False, "--no-details", help="Search results only: cheaper, no prices by site"),
     snapshots: int = typer.Option(10, help="One-page PDF snapshots for the top N"),
+    max_class: int = typer.Option(3, help="Skip hotels rated above this many stars (0 = no limit)"),
     dry_run: bool = DRY,
 ) -> None:
-    """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched."""
+    """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched.
+
+    Google tags few independent motels as "motels"; for a fuller list use --type any with a query such as
+    "motels in Mooloolaba QLD" (the 3-star cap keeps big hotels and resorts out).
+    """
     from datetime import timedelta
 
     from fullhouse import prospect as prospect_mod
@@ -205,7 +210,8 @@ def prospect(
         source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir)
         try:
             result = prospect_mod.run(ctx, source, area, start, nights=nights, property_type=ptype, limit=limit,
-                                      details=not no_details, snapshots=snapshots)
+                                      details=not no_details, snapshots=snapshots,
+                                      max_class=max_class or None)
         except (SerpApiError, ValueError) as exc:
             typer.secho(str(exc), fg="red")
             raise typer.Exit(1)
