@@ -1,0 +1,17 @@
+<div class="card" id="p{{ p.id }}">
+  <span class="kind">{{ labels[p.kind] }}</span>
+  <div class="title">{{ p.title }}</div>
+  {% if p.kind == 'review_reply' %}<p class="quote">{{ p.why }}</p>{% elif p.why %}<p class="muted">{{ p.why }}</p>{% endif %}
+  {% if p.status == 'pending' %}
+  <form method="post" action="/p/{{ p.token }}">
+    {% if p.kind == 'review_reply' %}<label class="muted" for="reply-{{ p.id }}">Our reply (edit before approving if you like)</label>
+    <textarea id="reply-{{ p.id }}" name="reply">{{ p.detail }}</textarea>{% endif %}
+    <div class="row" style="margin-top:10px">
+      <button class="approve" name="decision" value="approve" {% if focus == 'approve' %}autofocus{% endif %}>Approve</button>
+      <button name="decision" value="skip" {% if focus == 'skip' %}autofocus{% endif %}>Skip</button>
+    </div>
+  </form>
+  {% else %}
+  <p>{% if p.kind == 'review_reply' %}Reply: {{ p.detail }}<br>{% endif %}<span class="status {{ p.status }}">{{ status_words[p.status] }}</span></p>
+  {% endif %}
+</div>

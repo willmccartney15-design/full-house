@@ -1,0 +1,13 @@
+{% extends "web/base.html" %}
+{% block body %}
+<span class="eyebrow">{{ client.name }}</span>
+{% if p.status == 'pending' %}
+<h1>{% if focus == 'approve' %}Approve this?{% elif focus == 'skip' %}Skip this?{% else %}Your decision{% endif %}</h1>
+<p class="muted">Tap a button to confirm.</p>
+{% else %}
+<h1>{{ status_words[p.status] }}</h1>
+{% if just_decided %}<p class="muted">Thanks, we've recorded that.</p>{% endif %}
+{% endif %}
+{% include "web/_item.html" %}
+<p class="muted"><a href="/o/{{ client.owner_token }}" style="color:var(--accent)">All of this week's items</a></p>
+{% endblock %}

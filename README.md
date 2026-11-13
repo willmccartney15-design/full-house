@@ -91,6 +91,10 @@ only. Only `--website` is fetched live.
 | `fullhouse schedule [--day mon --hour 6]` | Blocking scheduler that runs `weekly` every week (timezone `FULLHOUSE_TIMEZONE`). |
 | `fullhouse client add / list / sign / add-competitor` | Client and competitor records. |
 | `fullhouse import-metrics file.csv --client <id>` | Weekly PMS export: `week_start,revenue,rooms_sold,rooms_available[,ly_revenue]`. |
+| `fullhouse approvals build/send/list/decide/serve` | The owner approval loop (see above). |
+| `fullhouse todo [--done ID]` | What owners have approved and still needs doing. |
+| `fullhouse outreach --client ID --to ADDRESS [--send]` | First email to a prospect from its findings. |
+| `fullhouse client contact / status` | Owner contact details; onboarding checklist. |
 | `fullhouse import-rates file.csv --client <id> [--map 'Col=stay_date'] [--add-competitors]` | Competitor rates from a rate-shopper export (see below). Used instead of fetching OTAs for 7 days. |
 | `fullhouse import-reviews file.json --client <id>` | Reviews from any source (see `fullhouse/sample/reviews.json`). |
 | `fullhouse reviews pending / approve` | Approve drafted replies. Nothing is ever posted automatically. |
@@ -124,6 +128,36 @@ fullhouse/
   scheduler.py APScheduler weekly runner
 tests/         pytest (offline; parser fixtures, guarantee maths, agents, end to end)
 ```
+
+## The owner approval loop
+
+Every weekly run ends by turning the agents' output into proposals and emailing the owner one message with an
+**Approve** and a **Skip** button for each: drafted review replies (worst reviews first), the Monday report's three
+actions, high-priority website / Google-profile / rate-parity findings, and the top listing fixes. Each subject is
+asked once; unanswered items expire after 14 days.
+
+The buttons open the approvals web app (`fullhouse approvals serve`; set `FULLHOUSE_APPROVAL_BASE_URL` to its public
+address). A link only opens a confirmation page and the button press records the decision, so email scanners that
+open links can't approve anything. The owner can edit a review reply before approving, and has a private page with
+everything waiting (`/o/<token>`, shown by `fullhouse approvals list`).
+
+Approved items land on your to-do list: `fullhouse todo`, then `fullhouse todo --done ID` once carried out. An
+approved Google review reply is posted automatically when Business Profile access is configured. Decisions taken by
+phone go in with `fullhouse approvals decide ID --approve`.
+
+## Email, outreach and onboarding
+
+- **Email:** set `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` and `MAIL_FROM` (any provider's SMTP works). Without
+  them, the Monday report and approval emails are saved to the outbox folder. Set each client's address with
+  `fullhouse client contact --client ID --email ... --name ...`.
+- **Outreach:** `fullhouse outreach --client ID --to their@published.address` drafts a first email from the
+  prospect's scan and audit findings, attaching the free audit when there is one; add `--send` to send it. The
+  sender details and an unsubscribe line are always appended (Spam Act 2003). Record opt-outs with
+  `fullhouse outreach --unsubscribe ADDRESS`; suppressed addresses are never emailed again. Only use an address the
+  business publishes for enquiries.
+- **Onboarding:** `fullhouse client status --client ID` shows what's connected for a client (contact, listings,
+  website, booking engine, competitors, PriceLabs rates, PMS figures and history, Google profile, reviews, voice)
+  and how to connect the rest.
 
 ## Competitor rates for signed clients
 
@@ -178,7 +212,6 @@ the adjusted figure. Properties need 12 months of history before the start date.
   class or `data-room-name`; others need a dedicated parser.
 - **Google.** Places API returns at most 10 photos and no posts or Q&A; posts and media dates need
   the Business Profile API (OAuth). Q&A has no API source here and is reported as "check manually".
-- **Email** is written to the outbox as `.eml`; wire up SMTP or a provider when ready.
 - **PMS/channel-manager APIs** (SiteMinder, RoomPriceGenie) are not integrated yet; metrics come
   in by CSV.
 

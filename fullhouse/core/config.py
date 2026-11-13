@@ -43,6 +43,22 @@ class Settings:
     )
     google_places_api_key: str | None = field(default_factory=lambda: os.getenv("GOOGLE_PLACES_API_KEY") or None)
     gbp_access_token: str | None = field(default_factory=lambda: os.getenv("GBP_ACCESS_TOKEN") or None)
+    # Email (SMTP). Without SMTP_HOST, messages are written to the outbox folder instead of sent.
+    smtp_host: str | None = field(default_factory=lambda: os.getenv("SMTP_HOST") or None)
+    smtp_port: int = field(default_factory=lambda: int(os.getenv("SMTP_PORT", "587")))
+    smtp_user: str | None = field(default_factory=lambda: os.getenv("SMTP_USER") or None)
+    smtp_password: str | None = field(default_factory=lambda: os.getenv("SMTP_PASSWORD") or None)
+    smtp_ssl: bool = field(default_factory=lambda: _bool("SMTP_SSL", False))  # True = port 465 SSL, else STARTTLS
+    mail_from: str = field(default_factory=lambda: os.getenv("MAIL_FROM", "reports@fullhouse.local"))
+    mail_from_name: str = field(default_factory=lambda: os.getenv("MAIL_FROM_NAME", "Full House"))
+    # Sender identity printed in every outreach email (the Spam Act requires who is sending and how to reach them).
+    sender_name: str = field(default_factory=lambda: os.getenv("FULLHOUSE_SENDER_NAME", "Will"))
+    sender_business: str = field(default_factory=lambda: os.getenv("FULLHOUSE_SENDER_BUSINESS", "Full House"))
+    sender_contact: str = field(default_factory=lambda: os.getenv("FULLHOUSE_SENDER_CONTACT", ""))
+    # Public address of the approvals web app (`fullhouse approvals serve`), used in email links.
+    approval_base_url: str = field(default_factory=lambda: os.getenv("FULLHOUSE_APPROVAL_BASE_URL",
+                                                                     "http://localhost:8000").rstrip("/"))
+    proposal_ttl_days: int = field(default_factory=lambda: int(os.getenv("FULLHOUSE_PROPOSAL_TTL_DAYS", "14")))
 
     @property
     def db_url(self) -> str:

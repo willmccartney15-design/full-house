@@ -1,0 +1,36 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>{{ subject }}</title></head>
+<body style="margin:0;padding:0;background:#f3f6f5;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#12302f;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f6f5;"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:10px;border:1px solid #d5dedb;">
+<tr><td style="padding:24px 24px 8px;">
+  <div style="font:600 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#0f7c74;">Full House · this week</div>
+  <h1 style="margin:10px 0 6px;font-size:22px;line-height:1.25;">{{ client.contact_name or 'Hi' }}{{ ',' if client.contact_name }} {{ items|length }} thing{{ 's' if items|length != 1 }} to approve for {{ client.name }}</h1>
+  <p style="margin:0;font-size:15px;line-height:1.5;color:#56706d;">Tap <b>Approve</b> and we'll take care of it, or <b>Skip</b> if you'd rather not. Nothing happens without your yes.</p>
+</td></tr>
+{% for p in items %}
+<tr><td style="padding:12px 24px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #d5dedb;border-radius:8px;">
+  <tr><td style="padding:14px 16px;">
+    <div style="font:600 11px/1 Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#56706d;">{{ labels[p.kind] }}</div>
+    <div style="margin-top:6px;font-size:16px;font-weight:600;line-height:1.35;">{{ p.title }}</div>
+    {% if p.kind == 'review_reply' %}
+      <div style="margin-top:8px;font-size:14px;line-height:1.45;color:#56706d;">{{ p.why }}</div>
+      <div style="margin-top:8px;padding:10px 12px;background:#f3f6f5;border-radius:6px;font-size:14px;line-height:1.5;">Our reply: {{ p.detail }}</div>
+    {% else %}
+      {% if p.why %}<div style="margin-top:6px;font-size:14px;line-height:1.45;color:#56706d;">{{ p.why }}</div>{% endif %}
+    {% endif %}
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:12px;"><tr>
+      <td style="padding-right:8px;"><a href="{{ base }}/p/{{ p.token }}?d=approve" style="display:inline-block;background:#0f7c74;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:10px 18px;border-radius:6px;">Approve</a></td>
+      <td style="padding-right:8px;"><a href="{{ base }}/p/{{ p.token }}?d=skip" style="display:inline-block;background:#ffffff;color:#12302f;text-decoration:none;font-weight:600;font-size:14px;padding:9px 17px;border-radius:6px;border:1px solid #d5dedb;">Skip</a></td>
+      {% if p.kind == 'review_reply' %}<td><a href="{{ base }}/p/{{ p.token }}" style="font-size:14px;color:#0f7c74;">Edit reply</a></td>{% endif %}
+    </tr></table>
+  </td></tr></table>
+</td></tr>
+{% endfor %}
+<tr><td style="padding:16px 24px 24px;font-size:13px;line-height:1.5;color:#56706d;">
+  See everything in one place: <a href="{{ base }}/o/{{ client.owner_token }}" style="color:#0f7c74;">your approvals page</a>.
+  Unanswered items expire after {{ ttl }} days.<br>{{ sender }}
+</td></tr>
+</table></td></tr></table>
+</body></html>

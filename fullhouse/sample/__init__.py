@@ -173,6 +173,7 @@ def seed(session, today: date):
     client.pms_type = "csv"
     client.start_date = today - timedelta(days=70)
     client.voice_profile = "Friendly, down-to-earth, family-run. Signs off as 'Sam, Coral Sands'."
+    client.contact_name, client.contact_email, client.phone = "Sam", "sam@coralsands.example", "+61 7 5555 0100"
     session.add(client)
     session.commit()
     have = {comp.name for comp in session.exec(select(Competitor).where(Competitor.client_id == client.id))}
