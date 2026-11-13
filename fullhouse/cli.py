@@ -175,6 +175,50 @@ def import_metrics(csv_path: Path, client: int = typer.Option(..., "--client")) 
     typer.secho(f"Imported {n} weeks.", fg="green")
 
 
+@app.command("import-rates")
+def import_rates(
+    csv_path: Path,
+    client: int = typer.Option(..., "--client"),
+    map_: Optional[list[str]] = typer.Option(None, "--map", help="Rename a column: 'Their column=stay_date'. Repeat."),
+    add_competitors: bool = typer.Option(False, "--add-competitors",
+                                         help="Add properties the file names that are not competitors yet"),
+    dry_run: bool = DRY,
+) -> None:
+    """Import competitor rates from a rate-shopper export (RoomPriceGenie, PriceLabs, Lighthouse, spreadsheet).
+
+    Long layout: stay_date,property,price[,room_type,nights,snapshot_date,ota]. Wide layout: stay_date then
+    one column per property. The rate agent uses an import from the last 7 days instead of fetching OTAs.
+    """
+    from fullhouse.core.rate_import import RateImportError
+    from fullhouse.core.rate_import import import_rates as do_import
+
+    column_map = {}
+    for item in map_ or []:
+        if "=" not in item:
+            typer.secho(f"--map needs 'Column=field', got {item!r}", fg="red")
+            raise typer.Exit(2)
+        k, v = item.split("=", 1)
+        column_map[k.strip()] = v.strip()
+    with context(dry_run=dry_run) as ctx:
+        _seed_if_dry(ctx, dry_run)
+        try:
+            r = do_import(ctx.session, _client(ctx, client), csv_path, today=ctx.today, column_map=column_map,
+                          add_competitors=add_competitors)
+        except RateImportError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    typer.secho(f"Stored {r.stored} prices across {r.stay_dates} stay dates from {r.rows} rows.", fg="green")
+    if r.added_competitors:
+        typer.echo(f"Added competitors: {', '.join(r.added_competitors)}")
+    if r.unmatched:
+        names = ", ".join(f"{n} ({c})" for n, c in r.unmatched.items())
+        typer.secho(f"Not matched to the client or a competitor, skipped: {names}. Re-run with --add-competitors "
+                    "to add them, or rename them in the file.", fg="yellow")
+    if r.skipped:
+        typer.secho(f"{r.skipped} rows had no usable stay date (or a date before the extract) and were skipped.",
+                    fg="yellow")
+
+
 @app.command("import-reviews")
 def import_reviews(json_path: Path, client: int = typer.Option(..., "--client")) -> None:
     """Import reviews from JSON: [{source, external_id, date, author, rating, text}]."""

@@ -64,6 +64,7 @@ only. Only `--website` is fetched live.
 | `fullhouse schedule [--day mon --hour 6]` | Blocking scheduler that runs `weekly` every week (timezone `FULLHOUSE_TIMEZONE`). |
 | `fullhouse client add / list / sign / add-competitor` | Client and competitor records. |
 | `fullhouse import-metrics file.csv --client <id>` | Weekly PMS export: `week_start,revenue,rooms_sold,rooms_available[,ly_revenue]`. |
+| `fullhouse import-rates file.csv --client <id> [--map 'Col=stay_date'] [--add-competitors]` | Competitor rates from a rate-shopper export (see below). Used instead of fetching OTAs for 7 days. |
 | `fullhouse import-reviews file.json --client <id>` | Reviews from any source (see `fullhouse/sample/reviews.json`). |
 | `fullhouse reviews pending / approve` | Approve drafted replies. Nothing is ever posted automatically. |
 | `fullhouse guarantee --client <id>` | Day-60 and day-90 guarantee check. |
@@ -96,6 +97,29 @@ fullhouse/
   scheduler.py APScheduler weekly runner
 tests/         pytest (offline; parser fixtures, guarantee maths, agents, end to end)
 ```
+
+## Competitor rates for signed clients
+
+For signed clients, competitor rates should come from the rate shopper in their pricing software
+(RoomPriceGenie, PriceLabs, Lighthouse), not from scraping. Export the comp-set rates as CSV and run
+`fullhouse import-rates`. For the next 7 days, `rate_scraper` uses that import instead of fetching any
+OTA, keeping the stay dates nearest 1/7/14/30 days out.
+
+Both common layouts are read:
+
+```
+stay_date,property,price[,room_type,nights,snapshot_date,ota]      # one row per price
+stay_date,Your Motel,Competitor A,Competitor B,...                 # one column per property
+```
+
+Headers are matched with common aliases (Date, Arrival, Hotel, Rate, LOS...); rename anything else with
+`--map 'Their header=stay_date'`. Names are matched loosely to the client and its competitors ("Seabreeze"
+matches "Seabreeze Motel"). Use `self` for the client's own rows if its name differs. Unmatched names are
+listed and skipped, unless you pass `--add-competitors`. Prices covering several nights are divided by the
+`nights` column.
+
+RoomPriceGenie does not publicly document a competitor-rate export or API. Once you have a real export
+from any vendor, its exact layout can be added as a ready-made mapping.
 
 ## Claude usage
 

@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from sqlmodel import select
 
 from fullhouse.agents.base import AgentContext, AgentResult
-from fullhouse.agents.rate_scraper import pivot, position_table
+from fullhouse.agents.rate_scraper import pivot, position_table, standard_leads
 from fullhouse.core import guarantee
 from fullhouse.core.metrics import WeekSummary, metrics_for, monday, summarise_week
 from fullhouse.core.models import Action, ActionStatus, Client, Finding, ListingAudit, RateSnapshot
@@ -72,7 +72,9 @@ def gather(ctx: AgentContext, client: Client, week: date) -> dict:
                 )
             )
         )
-        position = [asdict(r) for r in position_table(snaps)]
+        if any(s.source == "import" for s in snaps):  # never mix an import with a scrape from the same day
+            snaps = [s for s in snaps if s.source == "import"]
+        position = [asdict(r) for r in position_table(standard_leads(snaps))]
     audit = ctx.session.exec(
         select(ListingAudit).where(ListingAudit.client_id == client.id).order_by(ListingAudit.date.desc())
     ).first()

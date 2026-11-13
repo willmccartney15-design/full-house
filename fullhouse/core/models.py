@@ -58,6 +58,7 @@ class RateSnapshot(SQLModel, table=True):
     room_name: str = ""  # raw name as listed
     lead_days: int
     price: float  # per night
+    source: str = "scrape"  # scrape | import (a rate-shopper export, e.g. RoomPriceGenie or Lighthouse)
 
 
 class ListingAudit(SQLModel, table=True):

@@ -43,8 +43,51 @@ def primary_ota(ota_urls: dict) -> str | None:
     return next((o for o in OTA_PREFERENCE if ota_urls.get(o)), None)
 
 
+IMPORT_MAX_AGE_DAYS = 7
+
+
+def latest_import(ctx: AgentContext, client: Client) -> list[RateSnapshot]:
+    """Imported rate-shopper snapshots from the last week (newest extract only), if any."""
+    newest = ctx.session.exec(
+        select(RateSnapshot.date).where(RateSnapshot.client_id == client.id, RateSnapshot.source == "import")
+        .order_by(RateSnapshot.date.desc())
+    ).first()
+    if newest is None or (ctx.today - newest).days > IMPORT_MAX_AGE_DAYS:
+        return []
+    return list(ctx.session.exec(select(RateSnapshot).where(
+        RateSnapshot.client_id == client.id, RateSnapshot.source == "import", RateSnapshot.date == newest
+    )))
+
+
+def standard_leads(snaps: list[RateSnapshot], leads: tuple[int, ...] = LEAD_DAYS,
+                   tolerance: int = 3) -> list[RateSnapshot]:
+    """Keep the stay dates closest to 1/7/14/30 days out (within ``tolerance``), so a 90-day export reads
+    like a scrape. Lead values are kept as they are; the table shows the real distance."""
+    available = {s.lead_days for s in snaps if s.competitor_id is None}
+    chosen = set()
+    for target in leads:
+        near = [d for d in available if abs(d - target) <= tolerance]
+        if near:
+            chosen.add(min(near, key=lambda d: (abs(d - target), d)))
+    return [s for s in snaps if s.lead_days in chosen]
+
+
 def run(ctx: AgentContext, client: Client, lead_days: tuple[int, ...] = LEAD_DAYS) -> AgentResult:
     result = AgentResult(agent=NAME, client_id=client.id, summary="")
+    imported = latest_import(ctx, client)
+    if imported:  # a licensed rate-shopper export beats scraping: use it and touch no OTA
+        table = position_table(standard_leads(imported, lead_days))
+        result.data = {"ota": "import", "snapshots": len(imported), "source": "import",
+                       "extract_date": imported[0].date.isoformat(), "position": [asdict(r) for r in table]}
+        if not table:
+            result.errors.append(f"The imported rates from {imported[0].date} have no prices for {client.name} "
+                                 "near 1/7/14/30 days out; check its name in the file.")
+        dear = sum(1 for r in table if r.diff_pct is not None and r.diff_pct > 10)
+        cheap = sum(1 for r in table if r.diff_pct is not None and r.diff_pct < -10)
+        result.summary = (f"Using imported rates from {imported[0].date:%d %b} ({len(imported)} prices). "
+                          f"{dear} room/lead combinations more than 10% above market median, {cheap} more than "
+                          "10% below.")
+        return result
     ota = primary_ota(client.ota_urls or {})
     if ota is None:
         result.errors.append("Client has no OTA URL (booking / hostelworld / expedia).")
