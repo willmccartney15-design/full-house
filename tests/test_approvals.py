@@ -93,7 +93,7 @@ def test_web_app_flow(ctx, week, settings):
 def test_mailer_outbox_smtp_and_suppression(ctx, monkeypatch):
     s = ctx.settings
     msg = mailer.new_message(s, "owner@motel.example", "Hi", "Body")
-    assert mailer.deliver(s, msg, session=ctx.session).reason.startswith("SMTP not configured")
+    assert mailer.deliver(s, msg, session=ctx.session).reason.startswith("no email provider configured")
 
     sent_to = []
 
@@ -190,3 +190,55 @@ def test_monday_report_survives_an_smtp_failure(ctx, client, monkeypatch):
     assert res.summary and res.data["headline"] == res.summary
     assert len(res.errors) == 1 and "not emailed" in res.errors[0] and "Name or service" in res.errors[0]
     assert res.data["email"] and res.data["email"].endswith(".eml")
+
+
+def test_resend_transport(ctx, monkeypatch):
+    import base64
+    import json
+
+    import httpx
+
+    s = ctx.settings
+    s.mail_from, s.resend_api_key = "will@gmail.com", "re_test"
+    assert mailer.transport(s) == "resend"
+    assert mailer.resend_sender(s) == "Full House <onboarding@resend.dev>"  # Gmail can't be a Resend sender
+    s.mail_from = "will@fullhouse.com.au"
+    assert mailer.resend_sender(s) == "Full House <will@fullhouse.com.au>"  # own domain is used as is
+
+    calls = []
+
+    def fake_post(url, json, headers, timeout):
+        calls.append((url, json, headers))
+        return httpx.Response(200, json={"id": "abc"}, request=httpx.Request("POST", url))
+
+    monkeypatch.setattr(httpx, "post", fake_post)
+    msg = mailer.new_message(s, "owner@motel.example", "Monday report", "Plain body", "<p>HTML body</p>")
+    msg.add_attachment(b"%PDF-1.4 test", maintype="application", subtype="pdf", filename="report.pdf")
+    assert mailer.deliver(s, msg, session=ctx.session).sent
+    url, body, headers = calls[0]
+    assert url == "https://api.resend.com/emails" and headers["Authorization"] == "Bearer re_test"
+    assert headers["Idempotency-Key"]
+    assert body["to"] == ["owner@motel.example"] and body["reply_to"] == ["will@fullhouse.com.au"]
+    assert body["text"].strip() == "Plain body" and "<p>HTML body</p>" in body["html"]
+    assert body["attachments"] == [{"filename": "report.pdf", "content": base64.b64encode(b"%PDF-1.4 test").decode()}]
+    json.dumps(body)  # must be serialisable as sent
+
+
+def test_resend_placeholder_key_and_errors(ctx, monkeypatch):
+    import httpx
+
+    s = ctx.settings
+    s.email_provider = "resend"  # key injected by the network proxy, not in the environment
+    seen = {}
+
+    def refuse(url, json, headers, timeout):
+        seen.update(headers)
+        return httpx.Response(403, json={"message": "You can only send testing emails to your own address."},
+                              request=httpx.Request("POST", url))
+
+    monkeypatch.setattr(httpx, "post", refuse)
+    with pytest.raises(mailer.MailError, match="only send testing emails") as err:
+        mailer.deliver(s, mailer.new_message(s, "owner@motel.example", "Hi", "Body"), session=ctx.session)
+    assert seen["Authorization"] == "Bearer proxy-injected" and err.value.path.exists()
+    s.email_provider = "outbox"
+    assert not mailer.deliver(s, mailer.new_message(s, "owner@motel.example", "Hi", "Body")).sent
