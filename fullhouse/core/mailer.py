@@ -25,7 +25,11 @@ EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class MailError(RuntimeError):
-    pass
+    """Sending failed. The message is still in the outbox, at ``path``."""
+
+    def __init__(self, message: str, path: Path | None = None):
+        super().__init__(message)
+        self.path = path
 
 
 @dataclass
@@ -88,6 +92,6 @@ def deliver(settings: Settings, msg: EmailMessage, *, send: bool = True, session
                 server.login(settings.smtp_user, settings.smtp_password)
             server.send_message(msg)
     except (smtplib.SMTPException, OSError) as exc:
-        raise MailError(f"Sending to {to} failed: {exc}") from exc
+        raise MailError(f"Sending to {to} failed: {exc}", path) from exc
     log.info("sent %r to %s", msg["Subject"], to)
     return Sent(True, path)

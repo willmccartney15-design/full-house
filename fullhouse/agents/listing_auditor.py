@@ -61,7 +61,8 @@ class AuditResult(BaseModel):
 SYSTEM = """You audit OTA listings (Booking.com, HostelWorld, Expedia) for independent Australian motels and hostels.
 Score each of the 8 criteria 0-100 from the extracted listing facts, and rank the fixes by expected booking impact
 per hour of owner effort. Be concrete: name counts, missing items and exact settings. Do not invent facts that are not
-in the data; when a fact is missing, say it could not be verified."""
+in the data; when a fact is missing, say it could not be verified. The owner reads the evidence and fixes in a PDF:
+write plain English, never data field names or values such as null, and keep each evidence line under 30 words."""
 
 RUBRIC = """Criteria and benchmarks:
 - photos: 40+ photos is best practice for Booking.com ranking; under 20 is weak.

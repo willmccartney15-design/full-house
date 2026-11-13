@@ -189,7 +189,15 @@ def run(ctx: AgentContext, client: Client, week: date | None = None, send: bool 
          "today": ctx.today},
         out_dir / f"monday-report-{week.isoformat()}.pdf",
     )
-    eml = _queue_email(ctx, client, narrative, pdf) if send else None
+    eml = None
+    if send:
+        from fullhouse.core import mailer
+
+        try:
+            eml = _queue_email(ctx, client, narrative, pdf)
+        except mailer.MailError as exc:  # the report is built and paid for: keep it, flag the email
+            result.errors.append(f"Report saved to the outbox but not emailed: {exc}")
+            eml = exc.path
     result.data = {"week_start": week.isoformat(), "pdf": str(pdf), "email": str(eml) if eml else None,
                    **narrative.model_dump()}
     result.summary = narrative.headline

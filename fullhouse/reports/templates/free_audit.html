@@ -1,6 +1,7 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Free Revenue Audit — {{ client.name }}</title>
-<link rel="stylesheet" href="base.css"></head>
+<link rel="stylesheet" href="base.css">{% if compact %}<style>body { font-size: 8.6pt; line-height: 1.3; } h2 { margin-top: 3.5mm; }</style>{% endif %}
+</head>
 <body>
 <div class="brand">Full House · Free Revenue Audit</div>
 <h1>{{ client.name }}</h1>
@@ -38,7 +39,7 @@
   {% endfor %}
 </table>
 
-<div class="break"></div>
+{% if not compact %}<div class="break"></div>{% endif %}
 <div class="brand">Full House · Free Revenue Audit</div>
 <h2>Fix list, ranked by impact</h2>
 {% if not audit.fixes %}<p>No significant listing gaps: this listing is in good shape. The gains are in pricing and direct bookings.</p>{% else %}

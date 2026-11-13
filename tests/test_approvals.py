@@ -173,3 +173,20 @@ def test_owner_tokens_backfilled_for_old_databases(tmp_path):
     init_db(f"sqlite:///{db}")
     token = sqlite3.connect(db).execute("SELECT owner_token FROM client").fetchone()[0]
     assert token and len(token) >= 24
+
+
+def test_monday_report_survives_an_smtp_failure(ctx, client, monkeypatch):
+    """Live run, 13 Nov 2026: SMTP was unreachable and the whole report was recorded as failed."""
+    from fullhouse.agents import monday_report
+
+    def unreachable(*a, **k):
+        raise OSError("[Errno -2] Name or service not known")
+
+    monkeypatch.setattr(smtplib, "SMTP", unreachable)
+    ctx.settings.smtp_host = "smtp.example"
+    ctx.dry_run = False  # stubs still answer for Claude; only the email goes "live"
+    client.contact_email = "owner@motel.example"
+    res = monday_report.run(ctx, client)
+    assert res.summary and res.data["headline"] == res.summary
+    assert len(res.errors) == 1 and "not emailed" in res.errors[0] and "Name or service" in res.errors[0]
+    assert res.data["email"] and res.data["email"].endswith(".eml")

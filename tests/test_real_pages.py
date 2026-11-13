@@ -69,3 +69,21 @@ def test_real_saved_audit(settings, real_files, monkeypatch):
     assert len(out.competitors) == 10 and "Space Hotel" not in out.competitors
     assert "16 days out" in out.headline and "cheapest room" in out.headline
     assert out.score >= 80  # a well-kept listing
+
+
+def test_real_saved_audit_with_long_claude_answer_stays_two_pages(settings, real_files, monkeypatch):
+    """Claude's live answer (13 Nov 2026) has longer evidence and 7 fixes; it once pushed the PDF to 3 pages."""
+    import json
+    from pathlib import Path
+
+    from fullhouse.agents import listing_auditor
+    from fullhouse.runtime import context
+
+    live = json.loads((Path(__file__).parent / "fixtures/real/claude_audit_space_hotel_2026-11-13.json").read_text())
+    monkeypatch.setattr(listing_auditor, "audit_listing",
+                        lambda ctx, client, listing: listing_auditor.AuditResult.model_validate(live))
+    with context(dry_run=True, settings=settings, today=date(2026, 11, 13)) as ctx:
+        monkeypatch.setattr(ctx.fetcher, "get", lambda url, **kw: pytest.fail(f"network fetch: {url}"))
+        out = audit.run_saved(ctx, real_files["listing"], search_html=real_files["search"])
+    assert out.score == 82
+    assert out.pages == 2
