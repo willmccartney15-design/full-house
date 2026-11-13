@@ -47,6 +47,8 @@ uv run fullhouse audit --html listing.html --search-html search.html \
     --website https://their-site.com.au
 ```
 
+On iPhone or iPad, save with Safari's Share → Options → **Web Archive** (or ask Safari to save it to Files); the `.webarchive` file works as is.
+
 The property URL and dates are read from the saved page (`--url` and `--checkin` override them). Pages
 saved for different dates are flagged in the PDF. Add `--no-claude` to score with the built-in rubric
 only. Only `--website` is fetched live.

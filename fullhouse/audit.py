@@ -230,10 +230,25 @@ def _check_dates(path, html: str, checkin: date, notes: list[str]) -> None:
 
 
 def _read(path: Path) -> str:
+    """HTML from a saved page: plain .html, or a Safari Web Archive (.webarchive, what iPhone/iPad Safari saves)."""
     try:
-        return Path(path).read_text(encoding="utf-8", errors="replace")
+        data = Path(path).read_bytes()
     except OSError as exc:
         raise SavedPageError(f"Cannot read {path}: {exc.strerror}") from exc
+    if data.startswith(b"bplist"):
+        return _from_webarchive(path, data)
+    return data.decode("utf-8", errors="replace")
+
+
+def _from_webarchive(path: Path, data: bytes) -> str:
+    import plistlib
+
+    try:
+        main = plistlib.loads(data)["WebMainResource"]
+        encoding = main.get("WebResourceTextEncodingName") or "utf-8"
+        return main["WebResourceData"].decode(encoding, errors="replace")
+    except (plistlib.InvalidFileException, KeyError, LookupError, AttributeError) as exc:
+        raise SavedPageError(f"{path}: not a readable Safari Web Archive ({exc}).") from exc
 
 
 # ------------------------------------------------------------------- shared

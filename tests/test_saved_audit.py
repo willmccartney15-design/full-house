@@ -118,3 +118,24 @@ def test_cli_html_mode(saved, tmp_path, monkeypatch):
     assert "Competitors (10)" in result.output and "PDF (2 pages)" in result.output
     result = CliRunner().invoke(app, ["audit"])
     assert result.exit_code == 2
+
+
+def test_safari_web_archive(offline, saved, tmp_path):
+    """iPad/iPhone Safari saves pages as .webarchive (a binary plist wrapping the HTML)."""
+    import plistlib
+
+    def archive(src, name):
+        path = tmp_path / name
+        path.write_bytes(plistlib.dumps({"WebMainResource": {
+            "WebResourceData": src.read_bytes(), "WebResourceMIMEType": "text/html",
+            "WebResourceTextEncodingName": "UTF-8", "WebResourceURL": SAMPLE_BOOKING_URL}},
+            fmt=plistlib.FMT_BINARY))
+        return path
+
+    out = audit.run_saved(offline, archive(saved["listing"], "listing.webarchive"),
+                          search_html=archive(saved["search"], "search.webarchive"))
+    assert len(out.competitors) == 10 and out.notes == []
+    junk = tmp_path / "junk.webarchive"
+    junk.write_bytes(b"bplist00garbage")
+    with pytest.raises(audit.SavedPageError, match="Web Archive"):
+        audit.run_saved(offline, junk)
