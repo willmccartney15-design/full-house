@@ -27,7 +27,7 @@ Then try `uv run fullhouse reviews pending --client 1 --dry-run` and
 ```bash
 uv sync
 uv run playwright install chromium     # or set FULLHOUSE_CHROMIUM_PATH
-cp .env.example .env                    # add ANTHROPIC_API_KEY
+cp .env.example .env                    # add ANTHROPIC_API_KEY (FULLHOUSE_ANTHROPIC_API_KEY in hosted sessions)
 ```
 
 ## Prospecting an area automatically

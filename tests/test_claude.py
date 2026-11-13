@@ -85,3 +85,19 @@ def test_strict_schema_keeps_field_named_title():
     assert js["additionalProperties"] is False
     assert set(js["required"]) == {"title", "score"}
     assert "title" in js["properties"]
+
+
+def test_project_key_name_takes_precedence(ctx, monkeypatch):
+    seen = {}
+
+    class Recorder:
+        def __init__(self, api_key=None, **kw):
+            seen["api_key"] = api_key
+
+    monkeypatch.setenv("FULLHOUSE_ANTHROPIC_API_KEY", "sk-project")
+    monkeypatch.setattr(anthropic, "Anthropic", Recorder)
+    ClaudeClient(ctx.settings).client
+    assert seen["api_key"] == "sk-project"
+    monkeypatch.delenv("FULLHOUSE_ANTHROPIC_API_KEY")
+    ClaudeClient(ctx.settings).client
+    assert seen["api_key"] is None  # the SDK then reads ANTHROPIC_API_KEY itself
