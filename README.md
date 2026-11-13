@@ -45,6 +45,13 @@ most of the area lists that it doesn't, photo count and website. Output, under `
 a ranked `shortlist.pdf` and `shortlist.csv` (with phone and website for outreach), plus a one-page snapshot PDF
 for the top `--snapshots` properties. Every property is stored as a prospect, so a later `audit --html` builds on it.
 
+Only the target market is kept: holiday rentals and apartments, hotels above `--max-class` stars (default 3),
+listings with fewer than `--min-reviews` Google reviews (default 10) and properties with no phone on Google are left
+out, and the shortlist lists each with the reason. Prices are compared with the area only when at least 5
+properties show a price for the date; otherwise the report covers reputation and online presence. Google tags few
+independent motels as "motels", so a wider search such as `"motels in Mooloolaba QLD" --type any` finds more.
+`--cached-only` re-runs on saved responses without spending a search.
+
 Cost: one SerpApi search per 20 results plus one per property for details (`--no-details` skips those and the
 booking-site prices). Responses are cached for 24 hours, so a re-run the same day is free. Set `SERPAPI_API_KEY`
 first; `--dry-run` uses an offline sample.

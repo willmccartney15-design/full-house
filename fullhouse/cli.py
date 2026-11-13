@@ -186,6 +186,9 @@ def prospect(
     no_details: bool = typer.Option(False, "--no-details", help="Search results only: cheaper, no prices by site"),
     snapshots: int = typer.Option(10, help="One-page PDF snapshots for the top N"),
     max_class: int = typer.Option(3, help="Skip hotels rated above this many stars (0 = no limit)"),
+    min_reviews: int = typer.Option(10, help="Skip properties with fewer Google reviews (one-off listings)"),
+    cached_only: bool = typer.Option(False, "--cached-only",
+                                     help="Re-run on saved SerpApi responses only; never spends a search"),
     dry_run: bool = DRY,
 ) -> None:
     """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched.
@@ -203,15 +206,18 @@ def prospect(
     if ptype and ptype not in PROPERTY_TYPES:
         typer.secho(f"Unknown --type {property_type}; choose from {', '.join(PROPERTY_TYPES)} or any.", fg="red")
         raise typer.Exit(2)
-    if not no_details:
-        typer.echo(f"Up to {limit + 1 + limit // 20} SerpApi searches (cached results are free).")
+    if cached_only:
+        typer.echo("Cached responses only: no SerpApi searches will be made.")
+    elif not no_details:
+        typer.echo(f"Up to {limit + 1 + limit // 20} SerpApi searches, more if many results are filtered out "
+                   "(cached results are free).")
     with context(dry_run=dry_run) as ctx:
         start = date.fromisoformat(checkin) if checkin else ctx.today + timedelta(days=14)
-        source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir)
+        source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir, cached_only=cached_only)
         try:
             result = prospect_mod.run(ctx, source, area, start, nights=nights, property_type=ptype, limit=limit,
                                       details=not no_details, snapshots=snapshots,
-                                      max_class=max_class or None)
+                                      max_class=max_class or None, min_reviews=min_reviews)
         except (SerpApiError, ValueError) as exc:
             typer.secho(str(exc), fg="red")
             raise typer.Exit(1)
@@ -219,8 +225,13 @@ def prospect(
     if not result.reports:
         typer.echo(f"No properties found for '{area}'.")
         return
-    typer.secho(f"{a.count} properties · area median {f'${a.median_price:.0f}/night' if a.median_price else 'price n/a'} · "
+    typer.secho(f"{a.count} properties · area median {f'${a.median_price:.0f}/night' if a.price_benchmark else f'price n/a ({a.priced} priced)'} · "
                 f"{result.searches_used} SerpApi searches used", bold=True)
+    if a.excluded:
+        typer.echo(f"Left out {len(a.excluded)} non-targets: " + "; ".join(
+            f"{n} ({why})" for n, why in sorted(a.excluded.items())[:8]) + ("..." if len(a.excluded) > 8 else ""))
+    if not a.price_benchmark:
+        typer.secho(f"Only {a.priced} properties show a price for this date: price comparison skipped.", fg="yellow")
     for r in result.reports[:10]:
         typer.echo(f"{r.rank:>2}. [{r.opportunity:>3}] {r.hotel.name}: {r.headline}")
     typer.secho(f"Shortlist: {result.shortlist_pdf}\nCSV: {result.shortlist_csv}", fg="green")

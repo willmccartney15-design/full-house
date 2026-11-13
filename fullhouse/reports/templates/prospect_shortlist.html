@@ -6,9 +6,11 @@
 <div class="brand">Full House · Prospect shortlist</div>
 <h1>{{ area.query }}</h1>
 <div class="sub">{{ area.count }} properties from Google Hotels · {{ area.checkin.strftime('%a %d %b %Y') }}, {{ area.nights }} night{{ 's' if area.nights > 1 }}, 2 adults ·
-area median {{ area.median_price|money }} a night, rating {{ '%.1f'|format(area.median_rating) if area.median_rating else '–' }} ·
+{% if area.price_benchmark %}area median {{ area.median_price|money }} a night{% else %}{{ area.priced }} priced{% endif %}, rating {{ '%.1f'|format(area.median_rating) if area.median_rating else '–' }} ·
 {{ run.searches_used }} SerpApi searches · {{ today.strftime('%d %b %Y') }}</div>
-<p class="lead">Ranked by opportunity: the higher the score, the more the property stands to gain and the stronger the pitch.</p>
+<p class="lead">Ranked by opportunity: the higher the score, the more the property stands to gain and the stronger the pitch.
+{% if not area.price_benchmark %}Only {{ area.priced }} of {{ area.count }} show a price on Google for this date, so prices are
+not compared with the area.{% endif %}</p>
 <table>
   <tr><th class="n">#</th><th>Property</th><th class="n">Score</th><th class="n">Per night</th><th class="n">vs area</th>
   <th class="n">Rating</th><th>Direct booking</th><th>Top finding</th></tr>
@@ -19,4 +21,8 @@ area median {{ area.median_price|money }} a night, rating {{ '%.1f'|format(area.
   <td>{{ r.direct_status }}</td><td>{{ r.headline }}</td></tr>
   {% endfor %}
 </table>
+{% if area.excluded %}
+<p class="small"><strong>Left out ({{ area.excluded|length }}), not the target market:</strong>
+{% for name, why in area.excluded|dictsort %}{{ name }} ({{ why }}){{ '; ' if not loop.last }}{% endfor %}.</p>
+{% endif %}
 </body></html>

@@ -32,6 +32,10 @@ class SerpApiError(RuntimeError):
     pass
 
 
+class CacheMiss(SerpApiError):
+    """cached_only is set and this request was never saved."""
+
+
 class HotelsSource(Protocol):
     calls: int
 
@@ -51,6 +55,7 @@ class SerpApiClient:
     adults: int = 2
     cache_ttl_hours: float = 24
     calls: int = 0  # paid searches made (cache hits not counted)
+    cached_only: bool = False  # never make a paid call; cached responses of any age only
 
     def search(self, query, checkin, checkout, *, property_types=None, page_token=None) -> dict:
         params = {"q": query, **self._stay(checkin, checkout)}
@@ -72,8 +77,10 @@ class SerpApiClient:
         params = {"engine": "google_hotels", "currency": self.currency, "gl": self.gl, "hl": self.hl, **params}
         key = hashlib.sha256(json.dumps(params, sort_keys=True).encode()).hexdigest()
         path = self.cache_dir / "serpapi" / f"{key}.json"
-        if path.exists() and time.time() - path.stat().st_mtime < self.cache_ttl_hours * 3600:
+        if path.exists() and (self.cached_only or time.time() - path.stat().st_mtime < self.cache_ttl_hours * 3600):
             return json.loads(path.read_text())
+        if self.cached_only:
+            raise CacheMiss("not in the SerpApi cache")
         if not self.api_key:
             raise SerpApiError(
                 "SERPAPI_API_KEY is not set. Add it as an environment variable (in the cloud environment's settings "
