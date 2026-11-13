@@ -1,0 +1,18 @@
+{
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Delta Motel",
+   "property_token": "TOK_D",
+   "rate_per_night": {
+    "extracted_lowest": 160
+   },
+   "overall_rating": 4.5,
+   "reviews": 600,
+   "amenities": [
+    "Free Wi-Fi",
+    "Free parking"
+   ]
+  }
+ ]
+}

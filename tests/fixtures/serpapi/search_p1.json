@@ -1,0 +1,88 @@
+{
+ "search_metadata": {
+  "status": "Success"
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Alpha Motel",
+   "link": "https://alpha.example/",
+   "property_token": "TOK_A",
+   "rate_per_night": {
+    "lowest": "A$150",
+    "extracted_lowest": 150,
+    "before_taxes_fees": "A$136",
+    "extracted_before_taxes_fees": 136
+   },
+   "total_rate": {
+    "lowest": "A$150",
+    "extracted_lowest": 150
+   },
+   "hotel_class": "3-star hotel",
+   "extracted_hotel_class": 3,
+   "images": [
+    {
+     "thumbnail": "x"
+    },
+    {
+     "thumbnail": "x"
+    },
+    {
+     "thumbnail": "x"
+    },
+    {
+     "thumbnail": "x"
+    }
+   ],
+   "overall_rating": 4.6,
+   "reviews": 812,
+   "amenities": [
+    "Free Wi-Fi",
+    "Free parking",
+    "Pool"
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "Beta Motor Inn",
+   "property_token": "TOK_B",
+   "rate_per_night": {
+    "lowest": "A$120",
+    "extracted_lowest": 120
+   },
+   "overall_rating": 3.8,
+   "reviews": 90,
+   "amenities": [
+    "Free Wi-Fi"
+   ]
+  },
+  {
+   "type": "vacation rental",
+   "name": "Beach House",
+   "property_token": "TOK_V",
+   "rate_per_night": {
+    "extracted_lowest": 400
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Gamma Lodge",
+   "link": "https://gamma.example/",
+   "property_token": "TOK_G",
+   "rate_per_night": {
+    "extracted_lowest": 170
+   },
+   "overall_rating": 4.4,
+   "reviews": 400,
+   "amenities": [
+    "Free Wi-Fi",
+    "Free parking"
+   ]
+  }
+ ],
+ "serpapi_pagination": {
+  "current_from": 1,
+  "current_to": 20,
+  "next_page_token": "CBI="
+ }
+}

@@ -1,0 +1,383 @@
+{
+ "TOK_A": {
+  "name": "Alpha Motel",
+  "address": "1 Beach Rd, Mooloolaba QLD 4557",
+  "phone": "+61 7 5555 0001",
+  "link": "https://alpha.example/",
+  "overall_rating": 4.6,
+  "reviews": 812,
+  "images": [
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   }
+  ],
+  "amenities": [
+   "Free Wi-Fi",
+   "Free parking",
+   "Pool"
+  ],
+  "prices": [
+   {
+    "source": "Alpha Motel",
+    "official": true,
+    "rate_per_night": {
+     "extracted_lowest": 138
+    }
+   },
+   {
+    "source": "Booking.com",
+    "rate_per_night": {
+     "extracted_lowest": 150
+    }
+   },
+   {
+    "source": "Expedia",
+    "rate_per_night": {
+     "extracted_lowest": 152
+    }
+   }
+  ],
+  "other_reviews": [
+   {
+    "source": "Tripadvisor",
+    "source_rating": {
+     "score": 4.5,
+     "max_score": 5
+    },
+    "reviews": 300
+   }
+  ]
+ },
+ "TOK_B": {
+  "name": "Beta Motor Inn",
+  "overall_rating": 3.8,
+  "reviews": 90,
+  "images": [
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   }
+  ],
+  "amenities": [
+   "Free Wi-Fi"
+  ],
+  "prices": [
+   {
+    "source": "Beta Motor Inn",
+    "official": true,
+    "rate_per_night": {
+     "extracted_lowest": 135
+    }
+   },
+   {
+    "source": "Booking.com",
+    "rate_per_night": {
+     "extracted_lowest": 120
+    }
+   },
+   {
+    "source": "Agoda",
+    "rate_per_night": {}
+   }
+  ]
+ },
+ "TOK_G": {
+  "name": "Gamma Lodge",
+  "link": "https://gamma.example/",
+  "images": [
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   }
+  ],
+  "amenities": [
+   "Free Wi-Fi",
+   "Free parking"
+  ],
+  "prices": [
+   {
+    "source": "Booking.com",
+    "rate_per_night": {
+     "extracted_lowest": 170
+    }
+   }
+  ]
+ },
+ "TOK_D": {
+  "name": "Delta Motel",
+  "images": [
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   },
+   {
+    "thumbnail": "x"
+   }
+  ],
+  "amenities": [
+   "Free Wi-Fi",
+   "Free parking"
+  ],
+  "prices": [
+   {
+    "source": "Delta Motel",
+    "official": true,
+    "rate_per_night": {
+     "extracted_lowest": 150
+    }
+   },
+   {
+    "source": "Booking.com",
+    "rate_per_night": {
+     "extracted_lowest": 160
+    }
+   }
+  ]
+ }
+}

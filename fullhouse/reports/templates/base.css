@@ -25,3 +25,4 @@ td.n, th.n { text-align: right; }
 .small { font-size: 7.8pt; color: #5b6573; }
 .break { page-break-before: always; }
 ol.actions li { margin-bottom: 1.5mm; }
+tr { page-break-inside: avoid; break-inside: avoid; }

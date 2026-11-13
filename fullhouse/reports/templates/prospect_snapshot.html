@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Revenue snapshot — {{ h.name }}</title>
+<link rel="stylesheet" href="base.css"></head>
+<body>
+<div class="brand">Full House · Free Revenue Snapshot</div>
+<h1>{{ h.name }}</h1>
+<div class="sub">{{ h.address or area.query }} · prepared {{ today.strftime('%d %B %Y') }} · prices in AUD per night incl. taxes,
+for {{ area.checkin.strftime('%a %d %b %Y') }}{% if area.nights > 1 %} ({{ area.nights }} nights){% endif %}, 2 adults, from Google Hotels</div>
+
+<p class="lead">{{ r.headline }}</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="l">Price vs area</div><div class="v">{{ r.price_diff_pct|pct }}</div>
+    <div class="d">{{ h.price|money }} vs median {{ area.median_price|money }} of {{ area.count }} properties</div></div>
+  <div class="kpi"><div class="l">Google rating</div><div class="v">{{ '%.1f'|format(h.rating) if h.rating else '–' }}</div>
+    <div class="d">{{ h.reviews or 0 }} reviews · area median {{ '%.1f'|format(area.median_rating) if area.median_rating else '–' }}</div></div>
+  <div class="kpi"><div class="l">Booking direct</div><div class="v" style="font-size:11pt">{{ r.direct_status|capitalize }}</div>
+    <div class="d">{% if h.direct_price %}own site {{ h.direct_price|money }}{% else %}no own-site price on Google{% endif %}</div></div>
+  <div class="kpi"><div class="l">Amenities listed</div><div class="v">{{ h.amenities|length }}</div>
+    <div class="d">area median {{ '%.0f'|format(area.median_amenities) if area.median_amenities is not none else '–' }}</div></div>
+</div>
+
+{% if prices %}
+<h2>What guests see on Google</h2>
+<table>
+  <tr><th>Booking site</th><th class="n">Per night</th><th>Note</th></tr>
+  {% for p in prices %}
+  <tr><td>{{ p.source }}{% if p.official %} <span class="small">(your website)</span>{% endif %}</td><td class="n">{{ p.price|money }}</td>
+  <td class="small">{% if loop.first %}cheapest{% endif %}{% if p.official and not loop.first %}<span class="down">not the cheapest option</span>{% endif %}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>What we would fix first</h2>
+{% if r.issues %}
+<table>
+  <tr><th style="width:12%">Priority</th><th>Finding</th></tr>
+  {% for i in r.issues|sort(attribute='points', reverse=true) %}
+  <tr><td class="sev-{{ i.severity }}">{{ i.severity|title }}</td><td>{{ i.text }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}<p>No major gaps against the area: this property is in good shape.</p>{% endif %}
+
+{% if h.other_reviews %}
+<p class="small">Elsewhere: {% for o in h.other_reviews %}{{ o.source }} {{ o.score }}/{{ '%g'|format(o.max) if o.max else '?' }}{% if o.reviews %} ({{ o.reviews }} reviews){% endif %}{{ ', ' if not loop.last }}{% endfor %}.</p>
+{% endif %}
+
+<div class="cta">
+<strong>How Full House helps:</strong> we keep your direct rate below the OTAs, reprice weekly against the
+{{ area.count - 1 }} properties around you, answer every review, and send a one-page report each Monday with three actions.
+<strong>No-ROI-no-fee:</strong> if revenue at day 60 and day 90 is not above the same period last year (adjusted for rooms
+and closures), you don't pay for that period.
+</div>
+<p class="small">Based on public Google Hotels results for one date; prices change daily. Opportunity score {{ r.opportunity }}/100.</p>
+</body></html>
