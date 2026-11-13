@@ -1,0 +1,95 @@
+{
+ "criteria": [
+  {
+   "criterion": "photos",
+   "score": 100,
+   "evidence": "The listing shows 74 photos, well above the 40+ best-practice benchmark."
+  },
+  {
+   "criterion": "description",
+   "score": 85,
+   "evidence": "The 1152-character description names the CBD location, '5-minute walk from Melbourne Central Station' and room features, but never mentions parking and ends with a garbled line: 'Valid photo ID is required a physical (Passport / Driver's License). physical).'"
+  },
+  {
+   "criterion": "amenities",
+   "score": 70,
+   "evidence": "Exactly 10 facilities are listed ('Fitness centre', 'Free WiFi', 'Laundry', 'BBQ facilities'…), but lockers, the shared kitchen, the lounge/common room and air conditioning appear only in the description, not in the facility list, and parking could not be verified."
+  },
+  {
+   "criterion": "room_type_clarity",
+   "score": 90,
+   "evidence": "All 14 room types are priced and most state the bed setup (e.g. 'Bed in 6-Bed Mixed Dormitory Room with Shared Bathroom'), but 'Bed in Semi Private 4-Bed Mixed Dormitory room' is unexplained and capitalisation is inconsistent."
+  },
+  {
+   "criterion": "cancellation_policy",
+   "score": 85,
+   "evidence": "Free cancellation is offered, but the policies state 'Cancellation and prepayment policies vary according to accommodation type', so it could not be verified that every room type has a free-cancellation rate."
+  },
+  {
+   "criterion": "loyalty_program",
+   "score": 90,
+   "evidence": "Loyalty programme (Genius) participation was found on the listing."
+  },
+  {
+   "criterion": "review_responses",
+   "score": 50,
+   "evidence": "The review response rate is null, so owner replies could not be verified on the page."
+  },
+  {
+   "criterion": "review_score",
+   "score": 85,
+   "evidence": "Review score 8.6/10 from 1789 reviews, above the 8.5 strong threshold."
+  }
+ ],
+ "fixes": [
+  {
+   "rank": 1,
+   "fix": "In the Booking.com extranet Facilities section, tick Lockers, Shared kitchen, Shared lounge/TV area, Air conditioning, Heating, Rooftop terrace and Tea/coffee, and add your parking status (paid, nearby or none).",
+   "criterion": "amenities",
+   "effort": "low",
+   "expected_impact": "Hostel guests filter on lockers, kitchen and common room, so features that are only mentioned in the text are invisible to those filters and to the facility score."
+  },
+  {
+   "rank": 2,
+   "fix": "Reply to all new reviews, and to the backlog of recent ones, from the extranet; answer every review below 7 within 48 hours with a specific fix.",
+   "criterion": "review_responses",
+   "effort": "low",
+   "expected_impact": "Visible replies on 1789 reviews reassure bookers reading negatives and signal an active host to the ranking algorithm."
+  },
+  {
+   "rank": 3,
+   "fix": "Update 'Accepted payment methods', which currently shows only 'Cash', to list the credit and debit cards you accept, matching the AUD 200 card damage deposit and card check-in requirement.",
+   "criterion": "description",
+   "effort": "low",
+   "expected_impact": "A cash-only label contradicts the card requirements and can scare off international backpackers at checkout."
+  },
+  {
+   "rank": 4,
+   "fix": "Rewrite the description ending: fix the garbled 'Valid photo ID is required a physical ... physical).' sentence, move the ID and credit-card rules to the policies section, and add a parking or transport sentence.",
+   "criterion": "description",
+   "effort": "low",
+   "expected_impact": "A clean, complete description reads as professional and answers the parking question before guests bounce."
+  },
+  {
+   "rank": 5,
+   "fix": "Check that every one of the 14 room types, especially the dorm beds, has a free-cancellation rate plan alongside any non-refundable rate.",
+   "criterion": "cancellation_policy",
+   "effort": "low",
+   "expected_impact": "Free-cancellation options on all rooms lift conversion and keep the listing visible under the free-cancellation filter."
+  },
+  {
+   "rank": 6,
+   "fix": "Rename 'Bed in Semi Private 4-Bed Mixed Dormitory room' to state what makes it semi-private (e.g. curtained pod beds), and standardise capitalisation such as 'Standard Queen Room with Private Bathroom'.",
+   "criterion": "room_type_clarity",
+   "effort": "low",
+   "expected_impact": "Clear dorm names reduce booking hesitation and mismatched-expectation complaints."
+  },
+  {
+   "rank": 7,
+   "fix": "Review the last 3 months of sub-8 reviews for recurring complaints (e.g. noise, cleanliness, shared bathrooms), fix the top issue, and ask satisfied guests at checkout to leave a review.",
+   "criterion": "review_score",
+   "effort": "medium",
+   "expected_impact": "Lifting 8.6 toward 8.8+ strengthens ranking and the 'Excellent' badge against CBD hostel competitors."
+  }
+ ]
+}

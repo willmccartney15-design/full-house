@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import random
 import time
 from collections.abc import Callable
@@ -86,7 +87,9 @@ class ClaudeClient:
     def client(self) -> anthropic.Anthropic:
         if self._client is None:
             # Retries are ours (so they are logged); the SDK's own are switched off.
-            self._client = anthropic.Anthropic(max_retries=0, timeout=300)
+            # FULLHOUSE_ANTHROPIC_API_KEY first: hosted coding sessions reserve ANTHROPIC_API_KEY for their own use.
+            key = os.getenv("FULLHOUSE_ANTHROPIC_API_KEY") or None
+            self._client = anthropic.Anthropic(api_key=key, max_retries=0, timeout=300)
         return self._client
 
     # ------------------------------------------------------------------ public

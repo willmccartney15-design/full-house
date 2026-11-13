@@ -305,27 +305,26 @@ def _report(ctx, client, listing, audit, position, issues, competitor_names, *, 
     # Show only rows with something to compare against (room rows need saved competitor pages).
     shown = [r for r in position if r["competitors_priced"]] or position
     out = ctx.settings.output_dir / f"client-{client.id}" / f"free-audit-{ctx.today.isoformat()}.pdf"
-    pdf = render_pdf(
-        "free_audit.html",
-        {
-            "client": client,
-            "today": ctx.today,
-            "ota_label": "Booking.com",
-            "headline": headline,
-            "audit": listing_auditor.AuditResult.model_validate({"criteria": audit["criteria"], "fixes": audit["fixes"]}),
-            "position": position,
-            "pivot": rate_scraper.pivot(shown),
-            "leads": sorted({r["lead_days"] for r in shown}),
-            "pos": pos,
-            "pos_label": _lead_label(lead),
-            "rr": "–" if rr is None else f"{rr:.0%}",
-            "funnel_issues": issues,
-            "funnel_high": sum(1 for i in issues if i["severity"] == "high"),
-            "competitor_names": competitor_names,
-            "notes": notes,
-        },
-        out,
-    )
+    page_context = {
+        "client": client,
+        "today": ctx.today,
+        "ota_label": "Booking.com",
+        "headline": headline,
+        "audit": listing_auditor.AuditResult.model_validate({"criteria": audit["criteria"], "fixes": audit["fixes"]}),
+        "position": position,
+        "pivot": rate_scraper.pivot(shown),
+        "leads": sorted({r["lead_days"] for r in shown}),
+        "pos": pos,
+        "pos_label": _lead_label(lead),
+        "rr": "–" if rr is None else f"{rr:.0%}",
+        "funnel_issues": issues,
+        "funnel_high": sum(1 for i in issues if i["severity"] == "high"),
+        "competitor_names": competitor_names,
+        "notes": notes,
+    }
+    pdf = render_pdf("free_audit.html", page_context, out)
+    if pdf.pages > 2:  # long Claude evidence or fix text: drop the forced page break and tighten the type
+        pdf = render_pdf("free_audit.html", {**page_context, "compact": True}, out)
     return AuditOutput(client_id=client.id, pdf=out, pages=pdf.pages, score=audit["score"],
                        competitors=competitor_names, headline=headline, notes=notes)
 

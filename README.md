@@ -27,7 +27,7 @@ Then try `uv run fullhouse reviews pending --client 1 --dry-run` and
 ```bash
 uv sync
 uv run playwright install chromium     # or set FULLHOUSE_CHROMIUM_PATH
-cp .env.example .env                    # add ANTHROPIC_API_KEY
+cp .env.example .env                    # add ANTHROPIC_API_KEY (FULLHOUSE_ANTHROPIC_API_KEY in hosted sessions)
 ```
 
 ## Prospecting an area automatically
@@ -147,8 +147,15 @@ phone go in with `fullhouse approvals decide ID --approve`.
 
 ## Email, outreach and onboarding
 
-- **Email:** set `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` and `MAIL_FROM` (any provider's SMTP works). Without
-  them, the Monday report and approval emails are saved to the outbox folder. Set each client's address with
+- **Email:** two ways to send, chosen by `EMAIL_PROVIDER` (default `auto`):
+  - **Resend** (`RESEND_API_KEY`): sends over HTTPS, so it works where SMTP is blocked, such as hosted coding
+    sessions. Until you verify your own domain in Resend, mail goes from `onboarding@resend.dev` with replies to
+    `MAIL_FROM`, and Resend only delivers it to your own Resend account address; verify a domain before emailing
+    owners. In hosted sessions the key can be a network secret for `api.resend.com` instead of a variable; then set
+    `EMAIL_PROVIDER=resend`.
+  - **SMTP** (`SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `MAIL_FROM`), e.g. Gmail with an app password.
+
+  With neither, the Monday report and approval emails are saved to the outbox folder. Set each client's address with
   `fullhouse client contact --client ID --email ... --name ...`.
 - **Outreach:** `fullhouse outreach --client ID --to their@published.address` drafts a first email from the
   prospect's scan and audit findings, attaching the free audit when there is one; add `--send` to send it. The

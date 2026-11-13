@@ -51,6 +51,13 @@ class Settings:
     smtp_ssl: bool = field(default_factory=lambda: _bool("SMTP_SSL", False))  # True = port 465 SSL, else STARTTLS
     mail_from: str = field(default_factory=lambda: os.getenv("MAIL_FROM", "reports@fullhouse.local"))
     mail_from_name: str = field(default_factory=lambda: os.getenv("MAIL_FROM_NAME", "Full House"))
+    # How email leaves: auto (Resend if RESEND_API_KEY is set, else SMTP if SMTP_HOST is set, else the outbox),
+    # or force one with EMAIL_PROVIDER=resend | smtp | outbox.
+    email_provider: str = field(default_factory=lambda: os.getenv("EMAIL_PROVIDER", "auto").strip().lower())
+    resend_api_key: str | None = field(default_factory=lambda: os.getenv("RESEND_API_KEY") or None)
+    # Resend only sends from a domain verified in your Resend account. Until you verify one, leave this unset:
+    # mail goes from onboarding@resend.dev (Resend's test sender) with replies directed to MAIL_FROM.
+    resend_from: str | None = field(default_factory=lambda: os.getenv("RESEND_FROM") or None)
     # Sender identity printed in every outreach email (the Spam Act requires who is sending and how to reach them).
     sender_name: str = field(default_factory=lambda: os.getenv("FULLHOUSE_SENDER_NAME", "Will"))
     sender_business: str = field(default_factory=lambda: os.getenv("FULLHOUSE_SENDER_BUSINESS", "Full House"))
