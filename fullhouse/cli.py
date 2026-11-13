@@ -185,9 +185,17 @@ def prospect(
     limit: int = typer.Option(20, help="Properties to analyse (each costs one SerpApi search for details)"),
     no_details: bool = typer.Option(False, "--no-details", help="Search results only: cheaper, no prices by site"),
     snapshots: int = typer.Option(10, help="One-page PDF snapshots for the top N"),
+    max_class: int = typer.Option(3, help="Skip hotels rated above this many stars (0 = no limit)"),
+    min_reviews: int = typer.Option(10, help="Skip properties with fewer Google reviews (one-off listings)"),
+    cached_only: bool = typer.Option(False, "--cached-only",
+                                     help="Re-run on saved SerpApi responses only; never spends a search"),
     dry_run: bool = DRY,
 ) -> None:
-    """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched."""
+    """Find and rank prospects in an area from Google Hotels (via SerpApi). No OTA is fetched.
+
+    Google tags few independent motels as "motels"; for a fuller list use --type any with a query such as
+    "motels in Mooloolaba QLD" (the 3-star cap keeps big hotels and resorts out).
+    """
     from datetime import timedelta
 
     from fullhouse import prospect as prospect_mod
@@ -198,14 +206,18 @@ def prospect(
     if ptype and ptype not in PROPERTY_TYPES:
         typer.secho(f"Unknown --type {property_type}; choose from {', '.join(PROPERTY_TYPES)} or any.", fg="red")
         raise typer.Exit(2)
-    if not no_details:
-        typer.echo(f"Up to {limit + 1 + limit // 20} SerpApi searches (cached results are free).")
+    if cached_only:
+        typer.echo("Cached responses only: no SerpApi searches will be made.")
+    elif not no_details:
+        typer.echo(f"Up to {limit + 1 + limit // 20} SerpApi searches, more if many results are filtered out "
+                   "(cached results are free).")
     with context(dry_run=dry_run) as ctx:
         start = date.fromisoformat(checkin) if checkin else ctx.today + timedelta(days=14)
-        source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir)
+        source = SampleHotels() if dry_run else SerpApiClient(cache_dir=ctx.settings.cache_dir, cached_only=cached_only)
         try:
             result = prospect_mod.run(ctx, source, area, start, nights=nights, property_type=ptype, limit=limit,
-                                      details=not no_details, snapshots=snapshots)
+                                      details=not no_details, snapshots=snapshots,
+                                      max_class=max_class or None, min_reviews=min_reviews)
         except (SerpApiError, ValueError) as exc:
             typer.secho(str(exc), fg="red")
             raise typer.Exit(1)
@@ -213,8 +225,13 @@ def prospect(
     if not result.reports:
         typer.echo(f"No properties found for '{area}'.")
         return
-    typer.secho(f"{a.count} properties · area median ${a.median_price or 0:.0f}/night · "
+    typer.secho(f"{a.count} properties · area median {f'${a.median_price:.0f}/night' if a.price_benchmark else f'price n/a ({a.priced} priced)'} · "
                 f"{result.searches_used} SerpApi searches used", bold=True)
+    if a.excluded:
+        typer.echo(f"Left out {len(a.excluded)} non-targets: " + "; ".join(
+            f"{n} ({why})" for n, why in sorted(a.excluded.items())[:8]) + ("..." if len(a.excluded) > 8 else ""))
+    if not a.price_benchmark:
+        typer.secho(f"Only {a.priced} properties show a price for this date: price comparison skipped.", fg="yellow")
     for r in result.reports[:10]:
         typer.echo(f"{r.rank:>2}. [{r.opportunity:>3}] {r.hotel.name}: {r.headline}")
     typer.secho(f"Shortlist: {result.shortlist_pdf}\nCSV: {result.shortlist_csv}", fg="green")
@@ -325,6 +342,9 @@ def client_add(
     pms: Optional[str] = typer.Option(None),
     start_date: Optional[str] = typer.Option(None, help="YYYY-MM-DD service start"),
     voice: Optional[str] = typer.Option(None, help="Tone notes for review replies"),
+    email: Optional[str] = typer.Option(None, help="Owner's email for reports and approvals"),
+    contact_name: Optional[str] = typer.Option(None, help="Owner's first name, for greetings"),
+    phone: Optional[str] = typer.Option(None),
 ) -> None:
     """Add a signed client."""
     urls = {k: v for k, v in {"booking": booking_url, "hostelworld": hostelworld_url, "expedia": expedia_url,
@@ -332,7 +352,8 @@ def client_add(
     with context() as ctx:
         c = Client(name=name, property_type=property_type, region=region, room_count=rooms, ota_urls=urls,
                    website_url=website, gbp_url=gbp, gbp_place_id=place_id, pms_type=pms,
-                   start_date=date.fromisoformat(start_date) if start_date else None, voice_profile=voice)
+                   start_date=date.fromisoformat(start_date) if start_date else None, voice_profile=voice,
+                   contact_email=email, contact_name=contact_name, phone=phone)
         ctx.session.add(c)
         ctx.session.commit()
         typer.secho(f"Client {c.id}: {c.name}", fg="green")
@@ -371,6 +392,203 @@ def add_competitor(client: int = typer.Option(..., "--client"), name: str = type
         ctx.session.add(Competitor(client_id=client, name=name, ota_urls=urls))
         ctx.session.commit()
     typer.secho(f"Added competitor {name}.", fg="green")
+
+
+@client_app.command("contact")
+def client_contact(client: int = typer.Option(..., "--client"), email: Optional[str] = typer.Option(None),
+                   name: Optional[str] = typer.Option(None), phone: Optional[str] = typer.Option(None)) -> None:
+    """Set the owner's contact details (where reports and approval emails go)."""
+    with context() as ctx:
+        c = _client(ctx, client)
+        c.contact_email = email or c.contact_email
+        c.contact_name = name or c.contact_name
+        c.phone = phone or c.phone
+        ctx.session.add(c)
+        ctx.session.commit()
+    typer.secho(f"{c.name}: {c.contact_name or '-'} <{c.contact_email or 'no email'}> {c.phone or ''}", fg="green")
+
+
+@client_app.command("status")
+def client_status(client: int = typer.Option(..., "--client"), dry_run: bool = DRY) -> None:
+    """Onboarding checklist: what data is connected for this client, and how to connect the rest."""
+    from fullhouse.onboarding import checklist
+
+    with context(dry_run=dry_run) as ctx:
+        _seed_if_dry(ctx, dry_run)
+        c = _client(ctx, client)
+        checks = checklist(ctx.session, ctx.settings, c, ctx.today)
+    done = sum(ch.done for ch in checks)
+    typer.secho(f"{c.name}: {done}/{len(checks)} connected", bold=True)
+    for ch in checks:
+        mark = typer.style("✓", fg="green") if ch.done else typer.style("✗", fg="red")
+        typer.echo(f" {mark} {ch.item}: {ch.detail}  [{ch.needed_for}]")
+        if not ch.done:
+            typer.echo(f"     → {ch.how}")
+
+
+# ------------------------------------------------------------------ approvals
+
+approvals_app = typer.Typer(help="The owner approval loop: proposals, approval emails, the web app.",
+                            no_args_is_help=True)
+app.add_typer(approvals_app, name="approvals")
+
+
+@approvals_app.command("build")
+def approvals_build(client: int = typer.Option(..., "--client"), dry_run: bool = DRY) -> None:
+    """Turn this week's agent output into proposals for the owner."""
+    from fullhouse.core import proposals
+
+    with context(dry_run=dry_run) as ctx:
+        _seed_if_dry(ctx, dry_run)
+        c = _client(ctx, client)
+        r = proposals.build(ctx.session, c, ctx.today, ctx.settings.proposal_ttl_days)
+        waiting = proposals.pending(ctx.session, c)
+    typer.secho(f"{len(r.created)} new proposals, {r.expired} expired; {len(waiting)} waiting for the owner.",
+                fg="green")
+    for p in waiting:
+        typer.echo(f"  #{p.id} [{p.kind.value}] {p.title}")
+
+
+@approvals_app.command("send")
+def approvals_send(client: int = typer.Option(..., "--client"),
+                   no_send: bool = typer.Option(False, "--no-send", help="Write to the outbox only"),
+                   dry_run: bool = DRY) -> None:
+    """Email the owner everything waiting for approval."""
+    from fullhouse import digest
+    from fullhouse.core import mailer
+
+    with context(dry_run=dry_run) as ctx:
+        _seed_if_dry(ctx, dry_run)
+        c = _client(ctx, client)
+        try:
+            r = digest.send(ctx.session, ctx.settings, c, send=not (no_send or dry_run))
+        except mailer.MailError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    if r is None:
+        typer.echo("Nothing waiting for approval.")
+    else:
+        typer.secho(("Sent. " if r.sent else f"Not sent: {r.reason}. ") + f"Copy: {r.path}",
+                    fg="green" if r.sent else "yellow")
+
+
+@approvals_app.command("list")
+def approvals_list(client: int = typer.Option(..., "--client"), dry_run: bool = DRY) -> None:
+    """Every proposal for a client and its status, plus the owner's page link."""
+    from fullhouse.core.models import Proposal
+
+    with context(dry_run=dry_run) as ctx:
+        c = _client(ctx, client)
+        rows = ctx.session.exec(select(Proposal).where(Proposal.client_id == c.id).order_by(Proposal.id)).all()
+        base = ctx.settings.approval_base_url
+    for p in rows:
+        typer.echo(f"#{p.id:<4} {p.status.value:<9} [{p.kind.value}] {p.title}")
+    typer.echo(f"Owner's page: {base}/o/{c.owner_token}")
+
+
+@approvals_app.command("decide")
+def approvals_decide(proposal_id: int, approve: bool = typer.Option(..., "--approve/--skip"),
+                     note: Optional[str] = typer.Option(None), dry_run: bool = DRY) -> None:
+    """Record a decision by hand (e.g. the owner approved by phone)."""
+    from fullhouse.core import proposals
+    from fullhouse.core.models import Proposal
+
+    with context(dry_run=dry_run) as ctx:
+        p = ctx.session.get(Proposal, proposal_id)
+        if p is None:
+            typer.secho("No such proposal.", fg="red")
+            raise typer.Exit(1)
+        try:
+            proposals.decide(ctx.session, ctx.settings, p, approve, note=note)
+        except proposals.DecisionError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    typer.secho(f"#{p.id} {p.status.value}.", fg="green")
+
+
+@approvals_app.command("serve")
+def approvals_serve(host: str = typer.Option("127.0.0.1"), port: int = typer.Option(8000)) -> None:
+    """Run the approvals web app. Set FULLHOUSE_APPROVAL_BASE_URL to its public address."""
+    import uvicorn
+
+    from fullhouse.web import create_app
+
+    uvicorn.run(create_app(), host=host, port=port)
+
+
+@app.command()
+def todo(client: Optional[int] = typer.Option(None, "--client"),
+         done: Optional[int] = typer.Option(None, "--done", help="Mark this proposal id as done"),
+         dry_run: bool = DRY) -> None:
+    """What owners have approved and still needs doing."""
+    from fullhouse.core import proposals
+    from fullhouse.core.models import Proposal
+
+    with context(dry_run=dry_run) as ctx:
+        if done is not None:
+            p = ctx.session.get(Proposal, done)
+            if p is None:
+                typer.secho("No such proposal.", fg="red")
+                raise typer.Exit(1)
+            try:
+                proposals.mark_done(ctx.session, p)
+            except proposals.DecisionError as exc:
+                typer.secho(str(exc), fg="red")
+                raise typer.Exit(1)
+            typer.secho(f"#{p.id} done.", fg="green")
+            return
+        items = proposals.todo(ctx.session, client)
+        names = {c.id: c.name for c in ctx.session.exec(select(Client))}
+    if not items:
+        typer.echo("Nothing approved and waiting.")
+    for p in items:
+        typer.echo(f"#{p.id:<4} {names.get(p.client_id, p.client_id)}: [{p.kind.value}] {p.title}")
+        if p.kind.value == "review_reply":
+            typer.echo(f"      Reply to paste: {p.detail}")
+
+
+# ------------------------------------------------------------------ outreach
+
+
+@app.command()
+def outreach(client: Optional[int] = typer.Option(None, "--client", help="Prospect to write to"),
+             to: Optional[str] = typer.Option(None, help="Their published contact email"),
+             send: bool = typer.Option(False, "--send", help="Send now (otherwise draft to the outbox)"),
+             unsubscribe: Optional[str] = typer.Option(None, help="Record an opt-out for this address"),
+             no_claude: bool = typer.Option(False, "--no-claude"), dry_run: bool = DRY) -> None:
+    """Draft (or send) a first email to a prospect from its scan and audit findings."""
+    from fullhouse import outreach as outreach_mod
+    from fullhouse.core import mailer
+
+    with context(dry_run=dry_run) as ctx:
+        if unsubscribe:
+            mailer.suppress(ctx.session, unsubscribe)
+            typer.secho(f"{unsubscribe} won't be emailed again.", fg="green")
+            return
+        if client is None:
+            typer.secho("Give --client (or --unsubscribe EMAIL).", fg="red")
+            raise typer.Exit(2)
+        _seed_if_dry(ctx, dry_run)
+        if no_claude:
+            ctx.claude.dry_run = True
+        c = _client(ctx, client)
+        address = to or c.contact_email
+        d = outreach_mod.draft(ctx, c)
+        if to and not c.contact_email:
+            c.contact_email = to
+            ctx.session.add(c)
+            ctx.session.commit()
+        try:
+            r = outreach_mod.deliver(ctx, d, address or "", send=send and not dry_run)
+        except mailer.MailError as exc:
+            typer.secho(str(exc), fg="red")
+            raise typer.Exit(1)
+    typer.secho(f"Subject: {d.subject}", bold=True)
+    typer.echo(d.body + outreach_mod.footer(ctx))
+    if d.attachment:
+        typer.echo(f"\nAttached: {d.attachment.name}")
+    typer.secho(("\nSent." if r.sent else f"\nNot sent ({r.reason}).") + f" Copy: {r.path}",
+                fg="green" if r.sent else "yellow")
 
 
 # ------------------------------------------------------------------ reviews

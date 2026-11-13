@@ -1,0 +1,153 @@
+{
+ "search_parameters": {
+  "engine": "google_hotels",
+  "q": "Mooloolaba QLD",
+  "gl": "au",
+  "hl": "en",
+  "currency": "AUD",
+  "check_in_date": "2026-11-27",
+  "check_out_date": "2026-11-28",
+  "adults": 2,
+  "children": 0,
+  "property_types": "16"
+ },
+ "search_information": {
+  "total_results": 3
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Central Motel Mooloolaba",
+   "link": "http://www.centralmotelmooloolaba.com.au/",
+   "property_token": "ChgIgvvmw_yIi7cHGgwvZy8xMmhuNGhnNGgQAQ",
+   "overall_rating": 3.3,
+   "reviews": 123,
+   "hotel_class": "3-star hotel",
+   "extracted_hotel_class": 3,
+   "amenities": [
+    "Free Wi-Fi",
+    "Free parking",
+    "Outdoor pool",
+    "Air conditioning",
+    "Kid-friendly"
+   ],
+   "images": [
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW0M8LX2VedSstzM48kWCM52z-a3cANwdpeQKdtwDTIRA-UhUavJboEpXjo1YmCQXqXhSHhOO_LLM7NSBfpeS_nzOr2e5mXPiYE99MFcwhVZa7ekrxckH-bUVJyp_9nNT0ga16QZRJhcI7ANfHsy3H8uVBiimagJiioD0j8PDsTeHCmBmYknMZY=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3HwyCHOLPx8GtuL-msk3SjUnDq-0bda3uAVpVfT07xJrxpWIT4vfMQV64n7KSD-JpFzZHPCTVxf6wMa4n7Jyk5f541_ciFLoh5LKcV3U3RBE3Kjc5IBpwaDbVpQxXx5uQ35kqhLtFGHOPrks-bNAPC1JOhshSla6cNhSNPcUeS3c5piVAfPGurpw=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLeIH_TsHM_3w9JxgQtJQE-OHT1yVnszHuKZz0p6DuUVPyp1zZkRwU519dUlZSrjZV3yOCy5eXIxVnPRiF-iQG6T51vb9kb6cUlkXN_K-Mo4FTMFByXiL22EQjPNbIr2OeVOdMin=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2MWkua7Qbim00d-F54CKP-HYkQY24aaLH4euiof2GFNIeazsjY7utEqNK7wG-rdcOtY3HITRjGg7-uf5RpKS53ihglah-7pyHB8dJYJqJpHc-11tObb6C2mkTek4_TmC1Yi6T4Gi1WycvaPJAO8ziEdCSh-taw15HJEDwbptfMqOrvOacJfEpw=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW1oUPqqL-zWXuEwLsDj2PayhyKmEu6pVi7njxBAonM5wFNHFbsRfZgdEQxlUGLZfGJw2eu3W3fdEuYleXc008VhIL91Kt76AwYOGcSBeGnIaBqZ-e04Jvd-JqLBsMaZoFCWuWdi63bKdostXymlAGvSIrQ810GrhGXeldU0KmX4-CaW-TfclfY3=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3P2L_EeB1tewv0bl14UWmDemYB2D0oPDDT6fH2GQ7nDdjn_VE5AKxfvSlGIHG7ilx9dBf4LjoBlNFrRK1ZV23-E-rDEB_nLOibsSYGGBvKEGVKL92XiBR2_muPBrCIWahYn8th_-TjMWJU8l7TaO0FXFFbK-Yiumg2cdWBkHntuo-wSMiuUDOj=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW1pcnnJ0ZJh2sNhrhohX4JwcJ65mgduPHbr8ygFyReRNkS-PShKPSfmAZ8Vhs4xO01Dlc-N_94WqYbQUsD4pSse9-aruvu1bm_NoPW-ykyKWFbDv36nPKqLyM94xQa3ezFKoPUtHRS-aaseKbNEyIBNfDqribpf4JjP2uNAQOuR6AXEhdrVJNgJ=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW1DC7sWpShyUlq9j_jbqxei6_EgrhMdRkb5voWpaBvgCKFOLGsV3NsQhM8cYD_SxVZF4FjiVWOd1MaFqWzZKDyopbWoKOuaXrng6AEwzamNkV2ZxiR0poqSHWBkCRkVY862VBufQDD9utc4RLzPXKQfqEB_V-_kH9CzOvt5VOFTVhslZo0STcb_Vw=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW1M8CNA0MkUm29Cy0UeLqLB1VuDt3N9DZ9yNpe_YgAz0ppTKf5ukI_Hn31NjPhDAEbkonYbnGO7FVmvxzBzcSPgq4v2mSBeUHhQ4WUgiGV2kmgVEvEVkuiz8jwuAV2DEXT5z0isBD4bXFt73oOS-eHVVW7Z5duQ_nh8a4IscvOB8jmVjrC0WVuePw=s287-w287-h192-n-k-no-v1"
+    }
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "Kyamba Court Motel",
+   "property_token": "ChgIp_Xlt-b5uoiyARoLL2cvMXRkNHZmX3IQAQ",
+   "overall_rating": 4.2,
+   "reviews": 158,
+   "hotel_class": "3-star hotel",
+   "extracted_hotel_class": 3,
+   "amenities": [
+    "Free Wi-Fi",
+    "Free parking",
+    "Outdoor pool",
+    "Air conditioning",
+    "Kitchen in some rooms",
+    "Kid-friendly"
+   ],
+   "images": [
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLckjuX_5f8zIW9B0e0vWE8ai1WXEhN8wdufxE9GZI46Jf2nRtvvb4VyVO8V_M96HmiGq7308YQpLbhyWi8aHJrdFjU4wF9iM1ZlkBU3xfdOSOUSeIeTfMMFY2QepRs3ouDS93XP=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcUMsf76DtT_0von92AD9P7eR_S2451gQAVA_DRXsBmcvuNNJ8YEVEL8rftcFNt-NlUcrgdZ8ZaL0qMHmtCAXdKMOG3Yo1fus_-xVSLJBWLHjQoVHG1cywT_N3CcfY-7lpbFD8qzlsPdehD=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLf0z6ZtxkKoSS-S7jS2UtM8_CN1QT2WOfEyCzCJ6qsv0FmGdxPPgXo7Cy4uY2E3K3LtBsiZJxrE-FFBJZzkQWQtr7pbOAfUaIghjAr65XiODa107QO3FiBYzk2sG630vXBE3xgpiIoS-Xb8=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLd10yYAwVjCGbvC9Bze74Qg9OjlrE41re8CmXGYPyT3z77foYmxbOotHUtAzuOJDTSTUCvoF6xcCc4LCgDj71Rk3POSxf4U5D72aecq5uMQfaOdbdE-J7Zmb7G97-RR1cltIvedJOmyDnhZ=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLc-Q6ONUIUpiJo-K5S3rLKKzNWM_oUwKQKosiN0LX29JIgpme3j-9Y-Lw4mwC13Pi4XjzBUq7fVgU5fUPbqgxvjtZKxAy-oxrgTjBFys_xqozdZEycO1u9rmrSEQgMY2sSdAA-udA=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLe0Adnb7fOj2XNRKG5W3QiFv7k5pelGW_Im8_w3f1yLw6MrQBX8D13cbk9gIFIP11t5nLgE0edi4QLUTA8sheoId9hlMV5PIIGiexOG1iVQkh3kS1wg9nHHCoQ2FZ9TwbLNsEf0EZPA04D6=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcQhYk8yIRnnpfDmaw6CVy-k6SrbfBIcWuGZAMNXKkzCdGhr4xloR0wHW9Zcjcv9qNNZz8c4k9ib4ynXvqiGDo6eVixgNzrOYCXfbiGa_rA4jDI5EsgspfI1FQRheAcLguRREqup3DK_9rC=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcN-asqZvUW7vioLwLan54TyZLJXz7B19AD2K548SwNP9IeDaEnI_M0-r8mfIHfqVGTOrTn7dNrgX0nSTO5yQ9MzVn1u9XiHDsWccn032w3-HEGPqDHaN_6v8PTNnEZx55hF68qBjAs7k0Q=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdCl5_5ebukxXs5VICLAXv73lvWMTb2SFa7Js7hl_bg_GI-xzAUHF-iqvax7S2ovs3X7tKQfSLX0hmETiFETk-APTfC9QUH3Kkvgb-ht54iMbvYyGkYwoohnXFtIFykt6c8JF1CgOZkbAnL=s287-w287-h192-n-k-no-v1"
+    }
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "River Esplanade Motel Mooloolaba",
+   "property_token": "ChcI6em-v9vokPFSGgsvZy8xdGZsOXYxcxAB",
+   "overall_rating": 3.4,
+   "reviews": 24,
+   "hotel_class": "3-star hotel",
+   "extracted_hotel_class": 3,
+   "amenities": [
+    "Air conditioning",
+    "Kid-friendly"
+   ],
+   "images": [
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW0vh4Ef_l7lVesfsdL313kOohqaAJocruIj7Omxo0y8vXTlNqjsyZ6sprsfOXC4jzOGmw3rsEwbeLSi4kCLavIHp5HjfgKoqDdyij9ApCySvJbcSdByxhLFLbKV4A5eREiWHroEmEM_z2PhGi8aleAfYbZyr0Fp9HILnzqwKV1Wf-RN9HkWeDDW=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3pAoemnaKUDl06nikAVppvFT6lK3paFYE4YfS2BbeqexLa-no3v5OKgNdY5RJrQ0VrgoiRbHQMtza14uS217oC6JOekIpUhPf4yCxKYoZvHsBzGTpVUHql-FwuQYTVlMHCyxzqnt2QUMQBsK-MqZ-KrdCaoZavrKhrn36Thq3QDrGXh6K3b7PEQg=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdxp5PIr1ro6h_R3nU69GwxsEUFoc8NeY_84IcUa7TE_AX4rnriKrZQ8BZbNYs0tDsXVtJp2nCwQ_ZMsD9vkwmMYS5tquYB3EJOGKxpu2EnHcRhf1ZT0ts0mY9j6q3rfOyLAx4t=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdmpapGilnQLax3XYHVhW9ogLdCmSXyI0bB6guAm33lzTo-N2zsA-r8tbHvvEtzzUAMmxhb7yRm1X7aOLdBu4SgW5Ws0M6p_ZGomfLxHt46vLl5pmEsx03HKmyajHh36qHNtTy6MQ=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=2blvtZ6jS7MZClnW_PDC8g&cb_client=search.estubs.grass&w=287&h=192&yaw=275.48532&pitch=-4.8081183&thumbfov=100&scale=2"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLfzNCca7nUG42hPEs-ToLwCR-iuS3rjjvvqy2FLXhNgpri02WgwqSFgfDEI7XJsIBO0v8GkgG2S48wqgYAQvP7rQKWjnlCoRZePiACZhcTR7z-fb-k47axBa4m6FQxvieCmD5J6=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLdeBG4chppn7VlSIDyLA8_qirGP--QdCrRfYxvuWwJVht0aofGJa8SPYSTsJDxBADp3Ma499p9dq2aI0LGFzcAsPY3GpivzLsBvXKTWDM3HGBxji3UY06j9c0lXxfjzNWWp74xT=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLeDbJ4GWKy0L4wW3vWD48Nk-foR_GQdEWmj0fWZ-xSkSs-CpS-g4q1K5EqwiJ5AKg5LhVH0JTS6QfzOy-V8BSe1DspkE735HJnOuZ-kQcHK4_GXzV0GmAAIE0LsX2jYWocGV0B7rw=s287-w287-h192-n-k-no-v1"
+    },
+    {
+     "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcHSmuq40s5PboSTRcMdvBD9f5tjQ0SjlsVMgWab1NKpjLD9BWRlTfAqD4KaYaXgTavwH5E33cm4jxQLABuapyYOSjP4xFFTW1o9ln-t8VQrk-mXAX7j7kalQp6fwvEgrt3voSz2A=s287-w287-h192-n-k-no-v1"
+    }
+   ]
+  }
+ ]
+}

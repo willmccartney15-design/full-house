@@ -1,0 +1,4 @@
+rank,name,opportunity,price_per_night,price_vs_area_pct,google_rating,google_reviews,direct_booking,phone,website,address,headline
+1,River Esplanade Motel Mooloolaba,32,,,3.4,24,no prices shown,+61 7 5444 3855,,"98 River Esplanade, Mooloolaba QLD 4557, Australia","Missing amenities most of the area lists: outdoor pool, parking, wi-fi. 24 Google reviews vs a median of 123 in the area."
+2,Kyamba Court Motel,10,,,4.2,158,no prices shown,+61 7 5444 0202,,"94 Brisbane Rd, Mooloolaba QLD 4557, Australia",No website linked on Google.
+3,Central Motel Mooloolaba,0,,,3.3,123,no prices shown,+61 7 5444 3855,http://www.centralmotelmooloolaba.com.au/,"98 River Esplanade, Mooloolaba QLD 4557, Australia",No major gaps found against the area.

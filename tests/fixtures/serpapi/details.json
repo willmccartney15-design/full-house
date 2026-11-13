@@ -156,7 +156,8 @@
     "source": "Agoda",
     "rate_per_night": {}
    }
-  ]
+  ],
+  "phone": "+61 7 5555 0101"
  },
  "TOK_G": {
   "name": "Gamma Lodge",
@@ -264,7 +265,8 @@
      "extracted_lowest": 170
     }
    }
-  ]
+  ],
+  "phone": "+61 7 5555 0102"
  },
  "TOK_D": {
   "name": "Delta Motel",
@@ -378,6 +380,7 @@
      "extracted_lowest": 160
     }
    }
-  ]
+  ],
+  "phone": "+61 7 5555 0103"
  }
 }

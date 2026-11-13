@@ -25,7 +25,18 @@ def init_db(db_url: str) -> Engine:
     engine = get_engine(db_url)
     SQLModel.metadata.create_all(engine)
     _add_missing_columns(engine)
+    _backfill_tokens(engine)
     return engine
+
+
+def _backfill_tokens(engine: Engine) -> None:
+    """Clients created before owner pages existed get their private token."""
+    from fullhouse.core.models import new_token
+
+    with engine.begin() as conn:
+        rows = conn.execute(text('SELECT id FROM client WHERE owner_token IS NULL')).fetchall()
+        for (client_id,) in rows:
+            conn.execute(text("UPDATE client SET owner_token = :t WHERE id = :i"), {"t": new_token(), "i": client_id})
 
 
 def _add_missing_columns(engine: Engine) -> None:

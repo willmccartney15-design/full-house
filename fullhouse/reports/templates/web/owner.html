@@ -1,0 +1,11 @@
+{% extends "web/base.html" %}
+{% block body %}
+<span class="eyebrow">Full House · {{ client.name }}</span>
+<h1>{% if pending %}{{ pending|length }} to approve{% else %}You're all caught up{% endif %}</h1>
+<p class="muted">Nothing happens without your yes. Approved items are carried out by the Full House team.</p>
+{% for p in pending %}{% include "web/_item.html" %}{% endfor %}
+{% if recent %}
+<h2 style="font-size:18px;margin:16px 0 0">Recently decided</h2>
+<ul class="plain">{% for p in recent %}<li class="card"><span class="kind">{{ labels[p.kind] }}</span><span>{{ p.title }}</span><span class="status {{ p.status }}">{{ status_words[p.status] }}</span></li>{% endfor %}</ul>
+{% endif %}
+{% endblock %}

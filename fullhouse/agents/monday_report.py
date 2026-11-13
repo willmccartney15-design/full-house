@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from dataclasses import asdict
 from datetime import date, timedelta
-from email.message import EmailMessage
 from pathlib import Path
 
 from pydantic import BaseModel, Field
@@ -198,17 +197,19 @@ def run(ctx: AgentContext, client: Client, week: date | None = None, send: bool 
 
 
 def _queue_email(ctx: AgentContext, client: Client, n: Narrative, pdf: Path) -> Path:
-    """Email sending is stubbed: the message is written to the outbox as .eml for review."""
-    msg = EmailMessage()
-    msg["Subject"] = f"{client.name}: Monday report — {n.headline}"
-    msg["From"] = "reports@fullhouse.local"
-    msg["To"] = f"owner+client{client.id}@example.invalid"
+    """Email the report to the owner (SMTP when configured; always saved to the outbox)."""
+    from fullhouse.core import mailer
+
     actions = "\n".join(f"{i}. {a.text}" for i, a in enumerate(n.actions, 1))
-    msg.set_content(f"{n.narrative}\n\nThis week:\n{actions}\n")
+    greeting = f"{client.contact_name}," if client.contact_name else "Hi,"
+    text = (f"{greeting}\n\n{n.narrative}\n\nThis week:\n{actions}\n\nThe full report is attached. You'll get a "
+            f"separate email to approve this week's fixes.\n\n{ctx.settings.sender_name}, {ctx.settings.sender_business}")
+    msg = mailer.new_message(ctx.settings, client.contact_email or "", f"{client.name}: Monday report — {n.headline}",
+                             text)
     msg.add_attachment(pdf.read_bytes(), maintype="application", subtype="pdf", filename=pdf.name)
-    path = ctx.settings.outbox_dir / f"{pdf.stem}-client{client.id}.eml"
-    path.write_bytes(bytes(msg))
-    return path
+    sent = mailer.deliver(ctx.settings, msg, send=not ctx.dry_run, session=ctx.session,
+                          stem=f"{pdf.stem}-client{client.id}")
+    return sent.path
 
 
 def _json(obj) -> str:

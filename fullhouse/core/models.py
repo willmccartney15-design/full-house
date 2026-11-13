@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 from datetime import date, datetime, timezone
 from enum import StrEnum
 
@@ -10,6 +11,11 @@ from sqlmodel import JSON, Column, Field, SQLModel
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def new_token() -> str:
+    """Unguessable token for links in emails (approvals, owner page)."""
+    return secrets.token_urlsafe(24)
 
 
 class PropertyType(StrEnum):
@@ -38,6 +44,10 @@ class Client(SQLModel, table=True):
     voice_profile: str | None = None  # tone notes used by review_responder
     closure_days: list = Field(default_factory=list, sa_column=Column(JSON))  # ISO dates the property was closed
     is_prospect: bool = False  # created by a free audit, not yet signed
+    contact_name: str | None = None  # the owner or manager we deal with
+    contact_email: str | None = None  # where reports and approval emails go
+    phone: str | None = None
+    owner_token: str = Field(default_factory=new_token, index=True)  # the owner's private approvals page
     created_at: datetime = Field(default_factory=utcnow)
 
 
@@ -132,3 +142,48 @@ class ClaudeCall(SQLModel, table=True):
     attempts: int = 1
     ok: bool = True
     error: str | None = None
+
+
+class ProposalKind(StrEnum):
+    review_reply = "review_reply"  # post this drafted reply
+    action = "action"  # one of the Monday report's three actions
+    fix = "fix"  # a high-priority finding (website, Google profile, rate parity)
+    listing_fix = "listing_fix"  # a ranked fix from the OTA listing audit
+
+
+class ProposalStatus(StrEnum):
+    pending = "pending"  # waiting for the owner
+    approved = "approved"  # owner said yes; on the to-do list
+    skipped = "skipped"  # owner said no
+    done = "done"  # carried out
+    expired = "expired"  # not answered in time
+
+
+class Proposal(SQLModel, table=True):
+    """Something the agents want to do, waiting for the owner's one-tap approval."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    client_id: int = Field(foreign_key="client.id", index=True)
+    kind: ProposalKind
+    ref: str = Field(index=True)  # what it is about, e.g. "review:12"; one proposal per ref per client
+    title: str
+    detail: str = ""
+    why: str = ""
+    payload: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    priority: int = 50  # higher first
+    status: ProposalStatus = ProposalStatus.pending
+    token: str = Field(default_factory=new_token, index=True)
+    created_at: datetime = Field(default_factory=utcnow)
+    sent_at: datetime | None = None
+    decided_at: datetime | None = None
+    decided_note: str | None = None
+    done_at: datetime | None = None
+
+
+class Suppression(SQLModel, table=True):
+    """Addresses that asked not to be emailed again (Spam Act unsubscribe)."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True)
+    reason: str = "unsubscribed"
+    created_at: datetime = Field(default_factory=utcnow)

@@ -40,7 +40,30 @@ def run_weekly(dry_run: bool = False, settings: Settings | None = None, client_i
                     res = AgentResult(agent=name, client_id=client.id, summary="failed", errors=[repr(exc)])
                 results[client.id].append(res)
                 log.info("client %s %s: %s", client.id, name, res.summary)
+            if agents is None:  # a full weekly run ends with the owner's approval email
+                results[client.id].append(_approvals(ctx, client))
     return results
+
+
+def _approvals(ctx, client: Client) -> AgentResult:
+    from fullhouse import digest
+    from fullhouse.core import mailer, proposals
+
+    res = AgentResult(agent="approvals", client_id=client.id, summary="")
+    try:
+        built = proposals.build(ctx.session, client, ctx.today, ctx.settings.proposal_ttl_days)
+        sent = digest.send(ctx.session, ctx.settings, client, send=not ctx.dry_run)
+    except mailer.MailError as exc:
+        res.errors.append(str(exc))
+        res.summary = "approval email failed"
+        return res
+    if sent is None:
+        res.summary = f"{len(built.created)} new proposals; nothing waiting for approval."
+    else:
+        how = "emailed" if sent.sent else f"saved to the outbox ({sent.reason})"
+        res.summary = f"{len(built.created)} new proposals; approval email {how}."
+    res.data = {"created": len(built.created), "expired": built.expired, "email": str(sent.path) if sent else None}
+    return res
 
 
 def start(day_of_week: str = "mon", hour: int = 6, minute: int = 0, dry_run: bool = False) -> None:

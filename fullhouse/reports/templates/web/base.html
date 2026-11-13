@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex"><title>{{ title }} · Full House</title>
+<style>
+:root { --bg:#f3f6f5; --surface:#fff; --ink:#12302f; --muted:#56706d; --line:#d5dedb; --accent:#0f7c74; --good:#1f7a3d; --stop:#b23a2a; }
+@media (prefers-color-scheme: dark) { :root { --bg:#0d1716; --surface:#13211f; --ink:#e3eeec; --muted:#9db3af; --line:#26403c; --accent:#4fc2b6; --good:#6fd08f; --stop:#ff8a75; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.55 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif; padding:24px max(16px, env(safe-area-inset-right)) 48px max(16px, env(safe-area-inset-left)); }
+main { max-width:640px; margin:0 auto; display:grid; gap:16px; }
+.eyebrow { font:600 11px/1 Helvetica,Arial,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+h1 { font-size:24px; line-height:1.25; margin:6px 0 0; }
+p { margin:0; } .muted { color:var(--muted); }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px; display:grid; gap:10px; }
+.kind { font:600 11px/1 Helvetica,Arial,sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.title { font-weight:600; font-size:17px; line-height:1.35; }
+.quote { color:var(--muted); font-size:15px; }
+textarea { width:100%; min-height:110px; font:inherit; font-size:15px; padding:10px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+.row { display:flex; flex-wrap:wrap; gap:8px; }
+button { font:600 15px/1 inherit; padding:12px 20px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer; }
+button.approve { background:var(--accent); border-color:var(--accent); color:#fff; }
+button:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+.status { font-weight:600; } .status.approved, .status.done { color:var(--good); } .status.skipped, .status.expired { color:var(--stop); }
+ul.plain { list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+</style></head>
+<body><main>{% block body %}{% endblock %}</main></body></html>

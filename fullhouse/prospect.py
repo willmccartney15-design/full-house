@@ -26,6 +26,7 @@ from fullhouse.core.serpapi import HotelData, HotelsSource, merge_details, parse
 from fullhouse.reports.render import render_pdf
 
 NAME = "prospect"
+MIN_PRICED = 5  # fewer priced properties than this and the area median is not a fair benchmark
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
 
@@ -56,12 +57,17 @@ class ProspectReport:
         h = self.hotel
         if not h.has_details:
             return "not checked"
+        if not any(s.price for s in h.prices):
+            return "no prices shown"
         if h.direct_price is None:
             return "no direct price"
         ota = h.best_ota
         if ota and ota.price < h.direct_price:
             return f"{ota.source} cheaper"
         return "direct cheapest"
+
+
+IMAGE_SAMPLE = 9  # SerpApi's property responses list at most this many images
 
 
 @dataclass
@@ -75,6 +81,13 @@ class Area:
     median_reviews: float | None
     median_amenities: float | None
     common_amenities: list[str]  # listed by at least 60% of the area
+    priced_share: float = 0.0  # share of properties with any price on Google for these dates
+    priced: int = 0  # properties with a price; price comparisons need MIN_PRICED of them
+    excluded: dict[str, str] = field(default_factory=dict)  # name -> why it is not a target
+
+    @property
+    def price_benchmark(self) -> bool:
+        return self.priced >= MIN_PRICED and self.median_price is not None
 
 
 @dataclass
@@ -89,29 +102,67 @@ class ProspectRun:
 # ------------------------------------------------------------------ collect
 
 
+NON_TARGET_WORDS = ("apartment", "apartments", "holiday", "getaway", "villa", "house", "home", "cottage",
+                    "retreat", "unit ", "suite at", "studio at", "penthouse", "townhouse", "airbnb")
+TARGET_WORDS = ("motel", "motor inn", "inn", "lodge", "backpackers", "hostel", "hotel", "court")
+
+
+def exclusion_reason(h: HotelData, *, min_reviews: int, max_class: int | None, need_phone: bool) -> str | None:
+    """Why a property is not a Full House target (an independent motel, inn, lodge or hostel), or None."""
+    name = h.name.lower()
+    if h.type == "vacation rental":
+        return "holiday rental"
+    if max_class is not None and h.hotel_class and h.hotel_class > max_class:
+        return f"{h.hotel_class}-star"
+    if any(w in name for w in NON_TARGET_WORDS) and not any(w in name for w in TARGET_WORDS):
+        return "holiday apartment"
+    if (h.reviews or 0) < min_reviews:
+        return f"under {min_reviews} reviews"
+    if need_phone and not h.phone:
+        return "no phone on Google"
+    return None
+
+
 def collect(source: HotelsSource, query: str, checkin: date, checkout: date, *, property_types: list[int] | None,
-            limit: int, details: bool) -> list[HotelData]:
+            limit: int, details: bool, max_class: int | None = None, min_reviews: int = 0,
+            excluded: dict[str, str] | None = None) -> list[HotelData]:
+    """Targets only, up to ``limit``. Cheap filters run on search results, before paying for details; the phone
+    check needs details. ``excluded`` collects name -> reason for everything left out."""
+    from fullhouse.core.serpapi import CacheMiss
+
+    excluded = excluded if excluded is not None else {}
     hotels: list[HotelData] = []
     seen: set[str] = set()
     token = None
     while len(hotels) < limit:
-        page = source.search(query, checkin, checkout, property_types=property_types, page_token=token)
+        try:
+            page = source.search(query, checkin, checkout, property_types=property_types, page_token=token)
+        except CacheMiss:
+            break  # --cached-only: no more saved pages
         for item in page.get("properties") or []:
             h = parse_property(item)
             key = h.token or h.name
-            if not h.name or key in seen or h.type == "vacation rental":
+            if not h.name or key in seen:
                 continue
             seen.add(key)
+            if reason := exclusion_reason(h, min_reviews=min_reviews, max_class=max_class, need_phone=False):
+                excluded[h.name] = reason
+                continue
+            if details and h.token:
+                try:
+                    merge_details(h, source.details(h.token, checkin, checkout))
+                except CacheMiss:
+                    excluded[h.name] = "details not cached"
+                    continue
+                if reason := exclusion_reason(h, min_reviews=min_reviews, max_class=max_class, need_phone=True):
+                    excluded[h.name] = reason
+                    continue
             hotels.append(h)
             if len(hotels) >= limit:
                 break
         token = (page.get("serpapi_pagination") or {}).get("next_page_token")
         if not token or not page.get("properties"):
             break
-    if details:
-        for h in hotels:
-            if h.token:
-                merge_details(h, source.details(h.token, checkin, checkout))
     return hotels
 
 
@@ -130,6 +181,8 @@ def benchmark(hotels: list[HotelData], query: str, checkin: date, nights: int) -
         median_price=med(h.price for h in hotels), median_rating=med(h.rating for h in hotels),
         median_reviews=med(h.reviews for h in hotels), median_amenities=med(len(h.amenities) for h in hotels),
         common_amenities=common,
+        priced_share=round(sum(1 for h in hotels if h.price) / len(hotels), 2) if hotels else 0.0,
+        priced=sum(1 for h in hotels if h.price),
     )
 
 
@@ -137,7 +190,18 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
     r = ProspectReport(hotel=h)
     add = lambda sev, text, pts: r.issues.append(Issue(sev, text, pts))  # noqa: E731
 
-    if h.has_details:
+    if h.has_details and not any(s.price for s in h.prices):
+        when = f"{area.checkin:%d %b}"
+        if area.price_benchmark and area.priced_share > 0.5:
+            add("high", f"Google Hotels shows no bookable price for {when}, while most of the area does: guests "
+                        "comparing prices on Google can't see or book it. Unless it is sold out, its booking engine "
+                        "isn't sending rates to Google (free booking links fix this).", 25)
+        else:
+            add("medium", f"Google Hotels shows no bookable price for {when}. Most of the area shows none either, "
+                          "so check another date before raising it.", 5)
+    if h.has_details and any(s.price for s in h.prices):
+        # Only judge direct booking when Google shows some price: with none at all (no availability, or Google
+        # has no rates for these dates) there is no evidence either way.
         ota = h.best_ota
         if h.direct_price is None:
             add("high", "Google shows no price from the property's own site, so guests can only book through "
@@ -146,10 +210,15 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
             add("high", f"{ota.source} sells it for ${ota.price:.0f} a night, ${h.direct_price - ota.price:.0f} "
                         "less than its own website.", 25)
         elif ota and (ota.price - h.direct_price) / ota.price * 100 < buffer_pct:
-            add("medium", f"Booking direct saves guests only ${ota.price - h.direct_price:.0f} versus "
-                          f"{ota.source}: too little to pull bookings away from OTAs.", 10)
+            saving = ota.price - h.direct_price
+            if saving < 1:
+                add("medium", f"Booking direct costs the same as {ota.source} (${h.direct_price:.0f}), so guests "
+                              "have no reason to book direct.", 10)
+            else:
+                add("medium", f"Booking direct saves guests only ${saving:.0f} versus {ota.source}: too little "
+                              "to pull bookings away from OTAs.", 10)
 
-    if h.price and area.median_price:
+    if h.price and area.price_benchmark:
         r.price_diff_pct = round((h.price - area.median_price) / area.median_price * 100, 1)
         below_rating = h.rating is not None and area.median_rating is not None and h.rating < area.median_rating
         if r.price_diff_pct <= -15 and not below_rating:
@@ -171,7 +240,8 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
     if missing:
         add("medium" if len(missing) >= 2 else "low",
             f"Missing amenities most of the area lists: {', '.join(missing[:4])}.", min(15, 4 * len(missing)))
-    if h.has_details and h.images < 10:
+    # SerpApi returns a sample of images (9 in real responses), not the full count: only a shorter list is real.
+    if h.has_details and h.images < IMAGE_SAMPLE:
         add("low", f"Only {h.images} photos on Google.", 5)
     if not h.website:
         add("medium", "No website linked on Google.", 10)
@@ -185,16 +255,18 @@ def assess(h: HotelData, area: Area, buffer_pct: float = 5.0) -> ProspectReport:
 
 def run(ctx: AgentContext, source: HotelsSource, query: str, checkin: date, *, nights: int = 1,
         property_type: str | None = "motel", limit: int = 20, details: bool = True,
-        snapshots: int = 10) -> ProspectRun:
+        snapshots: int = 10, max_class: int | None = 3, min_reviews: int = 10) -> ProspectRun:
     from fullhouse.core.serpapi import PROPERTY_TYPES
 
     if checkin < ctx.today:
         raise ValueError(f"Check-in {checkin} is in the past.")
     types = [PROPERTY_TYPES[property_type]] if property_type else None
     calls_before = source.calls
+    excluded: dict[str, str] = {}
     hotels = collect(source, query, checkin, checkin + timedelta(days=nights), property_types=types, limit=limit,
-                     details=details)
+                     details=details, max_class=max_class, min_reviews=min_reviews, excluded=excluded)
     area = benchmark(hotels, query, checkin, nights)
+    area.excluded = excluded
     reports = sorted((assess(h, area, ctx.settings.direct_rate_buffer_pct) for h in hotels),
                      key=lambda r: -r.opportunity)
     for i, r in enumerate(reports, 1):

@@ -11,7 +11,7 @@ for {{ area.checkin.strftime('%a %d %b %Y') }}{% if area.nights > 1 %} ({{ area.
 
 <div class="kpis">
   <div class="kpi"><div class="l">Price vs area</div><div class="v">{{ r.price_diff_pct|pct }}</div>
-    <div class="d">{{ h.price|money }} vs median {{ area.median_price|money }} of {{ area.count }} properties</div></div>
+    <div class="d">{% if area.price_benchmark %}{{ h.price|money }} vs median {{ area.median_price|money }} of {{ area.priced }} priced{% else %}{{ h.price|money if h.price else 'no price' }}; too few prices nearby to compare ({{ area.priced }}){% endif %}</div></div>
   <div class="kpi"><div class="l">Google rating</div><div class="v">{{ '%.1f'|format(h.rating) if h.rating else '–' }}</div>
     <div class="d">{{ h.reviews or 0 }} reviews · area median {{ '%.1f'|format(area.median_rating) if area.median_rating else '–' }}</div></div>
   <div class="kpi"><div class="l">Booking direct</div><div class="v" style="font-size:11pt">{{ r.direct_status|capitalize }}</div>
@@ -42,7 +42,7 @@ for {{ area.checkin.strftime('%a %d %b %Y') }}{% if area.nights > 1 %} ({{ area.
 {% else %}<p>No major gaps against the area: this property is in good shape.</p>{% endif %}
 
 {% if h.other_reviews %}
-<p class="small">Elsewhere: {% for o in h.other_reviews %}{{ o.source }} {{ o.score }}/{{ '%g'|format(o.max) if o.max else '?' }}{% if o.reviews %} ({{ o.reviews }} reviews){% endif %}{{ ', ' if not loop.last }}{% endfor %}.</p>
+<p class="small">Elsewhere: {% for o in h.other_reviews %}{{ o.source }} {{ '%.1f'|format(o.score) if o.score is not none else '?' }}/{{ '%g'|format(o.max) if o.max else '?' }}{% if o.reviews %} ({{ o.reviews }} reviews){% endif %}{{ ', ' if not loop.last }}{% endfor %}.</p>
 {% endif %}
 
 <div class="cta">
